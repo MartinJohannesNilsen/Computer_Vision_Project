@@ -1,20 +1,58 @@
-# SSD300
+<center> 
+    <h1>
+        Computer Vision Project
+    </h1> 
+</center>
+
+---
+
+<center> 
+    <h2>
+        Object detection on LIDAR images from an autonomous car
+    </h2> 
+</center>
+
+#### by Martin Johannes Nilsen, Max Torre Schau, Zaim Imran
 
 
-## Tutorials
+## Introduction
+Write something here ... What have been done etc.
+
+
+## Tutorials from handout code
 - [Introduction to code](notebooks/code_introduction.ipynb).
 - [Dataset setup](tutorials/dataset_setup.md) (Not required for TDT4265 computers).
 - [Running tensorboard to visualize graphs](tutorials/tensorboard.md).
 
 
-## Install
-Follow the installation instructions from previous assignments.
-Then, install specific packages with
+## Setup
 
+After having successfully cloned the repository, you will need to make sure that you have the required python modules installed.
+
+### Virtual environment
+We recommend you using a virtual environment, which can be setup and run with
+```
+virtualenv -p /usr/bin/python3 venv
+source venv/bin/activate
+```
+*Note that this requires the package virtualenv on your computer*
+<details>
+    <summary>HowTo</summary>
+    
+    python -m pip install --user virtualenv
+
+</details>
+
+### Install required packages
+Then, install specific packages with
 ```
 pip install -r requirements.txt
 ```
 
+
+----
+# Below comes the handout readme
+----
 
 ## Dataset exploration 
 We have provided some boilerplate code for getting you started with dataset exploration. It can be found in `dataset_exploration/analyze_stuff.py`. We recommend making multiple copies of this file for different parts of your data exploration.
