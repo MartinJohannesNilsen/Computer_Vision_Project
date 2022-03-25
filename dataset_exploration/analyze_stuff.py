@@ -1,7 +1,6 @@
 from tops.config import instantiate, LazyConfig
 from ssd import utils
-from tqdm import tqdm
-
+import sys
 
 def get_config(config_path):
     cfg = LazyConfig.load(config_path)
@@ -22,10 +21,10 @@ def get_dataloader(cfg, dataset_to_visualize):
 
 
 def analyze_something(dataloader, cfg):
-    for batch in tqdm(dataloader):
+    for batch in dataloader:
         # Remove the two lines below and start analyzing :D
         print("The keys in the batch are:", batch.keys())
-        exit()
+        sys.exit(1)
 
 
 def main():
