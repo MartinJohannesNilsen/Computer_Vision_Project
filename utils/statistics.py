@@ -1,5 +1,6 @@
 from utils import read_images, read_annotation, create_histogram
 import collections
+import operator
 
 
 def create_image_shape_histogram(images):
@@ -32,9 +33,15 @@ def create_object_aspect_ratio_histogram(annotations, object):
             aspect_ratios[aspect_ratio] += 1
         except KeyError:
             aspect_ratios[aspect_ratio] = 1
+    print(aspect_ratios)
 
+    max_value = max(aspect_ratios, key=aspect_ratios.get)
+
+    print(f"For object: {object}, max value is: {max_value}")
     create_histogram(
         collections.OrderedDict(sorted(aspect_ratios.items())),
+        x_label="Aspect ratios",
+        y_label="Objects",
         title=f"Aspect ratios histogram for {object}",
         savefig_location=f"utils/histograms/{object}_aspect_ratio.png",
     )
@@ -43,5 +50,8 @@ def create_object_aspect_ratio_histogram(annotations, object):
 if __name__ == "__main__":
     """images = read_images("data/tdt4265_2022/images/train/")
     create_image_shape_histogram(images)"""
+
     annotations_train = read_annotation("data/tdt4265_2022/train_annotations.json")
-    create_object_aspect_ratio_histogram(annotations_train, object="car")
+    print(annotations_train["categories"])
+    for category in annotations_train["categories"]:
+        create_object_aspect_ratio_histogram(annotations_train, object=category["name"])
