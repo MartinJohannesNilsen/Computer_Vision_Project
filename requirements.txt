@@ -1,3 +1,4 @@
+# From handout_code
 Cython>=0.28.
 scikit-image
 ujson
@@ -7,3 +8,10 @@ pycocotools==2.0.0
 easydict
 omegaconf
 vizer
+
+# Modules added by us
+torch
+torchvision
+tqdm
+opencv-python
+numpy
