@@ -30,9 +30,14 @@ Write something here ... What have been done etc.
 After having successfully cloned the repository, you will need to make sure that you have the required python modules installed.
 
 ### Virtual environment
-We recommend you using a virtual environment, which can be setup and run with
+We recommend you using a virtual environment, which can be created with
 ```
 virtualenv -p /usr/bin/python3 venv
+```
+You can now place all the required modules in this virtual environment instead of globally on your computer. 
+
+In your terminal you can access this using
+```
 source venv/bin/activate
 ```
 *Note that this requires the package virtualenv on your computer*
@@ -44,11 +49,16 @@ source venv/bin/activate
 </details>
 
 ### Install required packages
-Then, install specific packages with
+Then, install the required packages with
 ```
 pip install -r requirements.txt
 ```
 
+## Dataset installation
+The dataset can be downloaded using the script
+```
+python scripts/update_tdt4265_dataset.py
+```
 
 ----
 # Below comes the handout readme
