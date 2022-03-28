@@ -28,5 +28,5 @@ def get_output_dir():
             print(f"\t {work_dir} does not sync with NTNU HOME, and is a directory only located on the server.")
             print("\t To change the output directory of SSD, set save_in_work to True in the file configs/utils.py, in the function get_output_dir.")
 
-    print("Saving SSD outputs to: outputs/")
+    #print("Saving SSD outputs to: outputs/")
     return pathlib.Path("outputs")
