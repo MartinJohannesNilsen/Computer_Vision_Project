@@ -20,19 +20,31 @@ def read_annotation(path):
     return data
 
 
-def create_histogram(
-    dictionary, title, x_label="", y_label="", rotation=40, show=False, savefig_location=None
-):
+def create_histogram(dictionary, title, x_label="", y_label="", xtick_rotation=None, xtick_fontsize=None,
+                     ytick_rotation=None, ytick_fontsize=None, show=False, savefig_location=None, figsize=None):
     names = list(dictionary.keys())
     values = list(dictionary.values())
     plt.clf()
+    if figsize:
+        plt.figure(figsize=figsize)
     plt.bar(range(len(dictionary)), values, tick_label=names)
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.tight_layout()
-    plt.xticks(rotation=rotation, fontsize=5)
-    if savefig_location is not None:
+    if xtick_fontsize:
+        plt.xticks(fontsize=xtick_fontsize)
+    if xtick_rotation:
+        plt.xticks(rotation=xtick_rotation)
+    if ytick_fontsize:
+        plt.yticks(fontsize=ytick_fontsize)
+    if ytick_fontsize:
+        plt.yticks(rotation=ytick_fontsize)
+    if savefig_location:
         plt.savefig(savefig_location)
     if show:
         plt.show()
+
+
+def create_matrix():
+    pass
