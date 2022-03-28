@@ -1,3 +1,4 @@
+from dis import show_code
 import os
 import cv2
 import json
@@ -20,7 +21,7 @@ def read_annotation(path):
 
 
 def create_histogram(
-    dictionary, title, savefig_location=None, x_label="", y_label="", rotation=40
+    dictionary, title, x_label="", y_label="", rotation=40, show=False, savefig_location=None
 ):
     names = list(dictionary.keys())
     values = list(dictionary.values())
@@ -33,3 +34,5 @@ def create_histogram(
     plt.xticks(rotation=rotation, fontsize=5)
     if savefig_location is not None:
         plt.savefig(savefig_location)
+    if show:
+        plt.show()
