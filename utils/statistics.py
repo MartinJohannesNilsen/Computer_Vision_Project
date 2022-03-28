@@ -33,11 +33,14 @@ def create_object_aspect_ratio_histogram(annotations, object):
             aspect_ratios[aspect_ratio] += 1
         except KeyError:
             aspect_ratios[aspect_ratio] = 1
-    print(aspect_ratios)
+    max_value = None
+    if bool(aspect_ratios):
+        max_value = max(aspect_ratios.values())
 
-    max_value = max(aspect_ratios, key=aspect_ratios.get)
-
-    print(f"For object: {object}, max value is: {max_value}")
+    if bool(max_value):
+        aspect_ratios = {
+            k: v for (k, v) in aspect_ratios.items() if v > max_value * 0.1
+        }
     create_histogram(
         collections.OrderedDict(sorted(aspect_ratios.items())),
         x_label="Aspect ratios",
