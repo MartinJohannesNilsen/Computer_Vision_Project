@@ -20,7 +20,13 @@ def read_annotation(path):
 
 
 def create_histogram(
-    dictionary, title, savefig_location=None, x_label="", y_label="", rotation=40
+    dictionary,
+    title,
+    savefig_location=None,
+    x_label="",
+    y_label="",
+    rotation=40,
+    fontsize=5,
 ):
     names = list(dictionary.keys())
     values = list(dictionary.values())
@@ -30,6 +36,6 @@ def create_histogram(
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.tight_layout()
-    plt.xticks(rotation=rotation, fontsize=5)
+    plt.xticks(rotation=rotation, fontsize=fontsize)
     if savefig_location is not None:
         plt.savefig(savefig_location)
