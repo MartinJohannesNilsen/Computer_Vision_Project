@@ -5,9 +5,6 @@ import pathlib
 
 
 def get_dataset_dir(dataset_relpath: str):
-    # First we have to check if we run locally or on NTNU server
-    if not os.path.exists("/work/datasets"):
-        return os.path.join(pathlib.Path(__file__).parent.parent.resolve(), "data", dataset_relpath)
     server_dir = pathlib.Path("/work/datasets", dataset_relpath)
     if server_dir.is_dir():
         print("Found dataset directory in:", server_dir)
@@ -15,7 +12,7 @@ def get_dataset_dir(dataset_relpath: str):
     if server_dir.is_file():
         print("Found dataset file in:", server_dir)
         return str(server_dir)
-    return str(pathlib.Path("data", dataset_relpath))
+    return os.path.join(pathlib.Path(__file__).parent.parent.resolve(), "data", dataset_relpath)
 
 
 def get_output_dir():
