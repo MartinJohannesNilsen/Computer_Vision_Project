@@ -1,17 +1,28 @@
-from utils import read_images, read_annotation, create_histogram
 import collections
-import operator
+from dataset_exploration.utils import create_histogram, read_annotation
+from tops.config import instantiate, LazyConfig
+from ssd import utils
+import sys
 
 
-def create_image_shape_histogram(images):
+def get_config(config_path):
+    cfg = LazyConfig.load(config_path)
+    cfg.train.batch_size = 1
+    return cfg
 
-    shapes = {}
-    for image in images:
-        try:
-            shapes[str(image.shape)] += 1
-        except KeyError:
-            shapes[str(image.shape)] = 1
-    create_histogram(shapes)
+
+def get_dataloader(cfg, dataset_to_visualize):
+    if dataset_to_visualize == "train":
+        # Remove GroundTruthBoxesToAnchors transform
+        cfg.data_train.dataset.transform.transforms = (
+            cfg.data_train.dataset.transform.transforms[:-1]
+        )
+        data_loader = instantiate(cfg.data_train.dataloader)
+    else:
+        cfg.data_val.dataloader.collate_fn = utils.batch_collate
+        data_loader = instantiate(cfg.data_val.dataloader)
+
+    return data_loader
 
 
 def create_object_aspect_ratio_histogram(annotations, object):
@@ -46,15 +57,26 @@ def create_object_aspect_ratio_histogram(annotations, object):
         x_label="Aspect ratios",
         y_label="Objects",
         title=f"Aspect ratios histogram for {object}",
-        savefig_location=f"utils/histograms/{object}_aspect_ratio.png",
+        savefig_location=f"dataset_exploration/histograms/{object}_aspect_ratio.png",
     )
 
 
-if __name__ == "__main__":
-    """images = read_images("data/tdt4265_2022/images/train/")
-    create_image_shape_histogram(images)"""
-
+def analyze_something(dataloader, cfg):
     annotations_train = read_annotation("data/tdt4265_2022/train_annotations.json")
-    print(annotations_train["categories"])
     for category in annotations_train["categories"]:
         create_object_aspect_ratio_histogram(annotations_train, object=category["name"])
+
+
+def main():
+    config_path = "configs/tdt4265.py"
+    cfg = get_config(config_path)
+    dataset_to_analyze = "train"  # or "val"
+
+    print("Label map is:", cfg.label_map)
+
+    dataloader = get_dataloader(cfg, dataset_to_analyze)
+    analyze_something(dataloader, cfg)
+
+
+if __name__ == "__main__":
+    main()

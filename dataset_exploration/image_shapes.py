@@ -1,3 +1,6 @@
+from dataset_exploration.utils import create_histogram
+import collections
+import operator
 from tops.config import instantiate, LazyConfig
 from ssd import utils
 import sys
@@ -24,9 +27,24 @@ def get_dataloader(cfg, dataset_to_visualize):
 
 
 def analyze_something(dataloader, cfg):
+    shapes = {}
     for batch in dataloader:
         # Remove the two lines below and start analyzing :D
-        print("The keys in the batch are:", batch.keys())
+        # print("The keys in the batch are:", batch.keys())
+        shape = (batch["width"][0].item(), batch["height"][0].item())
+        try:
+            shapes[str(shape)] += 1
+        except KeyError:
+            shapes[str(shape)] = 1
+
+    create_histogram(
+        shapes,
+        x_label="Image shape",
+        y_label="Count",
+        title=f"Image shape histogram",
+        savefig_location=f"dataset_exploration/histograms/image_shape.png",
+        rotation=0,
+    )
 
 
 def main():
