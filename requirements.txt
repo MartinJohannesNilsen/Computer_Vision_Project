@@ -16,3 +16,4 @@ opencv-python
 numpy
 cloudpickle
 tensorboard
+matplotlib
