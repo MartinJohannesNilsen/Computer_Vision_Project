@@ -32,8 +32,8 @@ class BasicModel(torch.nn.Module):
                 stride=1,
                 padding=1,
             ),
-            torch.nn.ReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
@@ -155,7 +155,7 @@ class BasicModel(torch.nn.Module):
                 in_channels=128,
                 out_channels=output_channels[5],
                 kernel_size=2,  # Changed from 3 (originally) to 2
-                stride=1,
+                stride=2, # Changed from 1 to 2
                 padding=0,
             ),
             torch.nn.ReLU(),
@@ -177,10 +177,12 @@ class BasicModel(torch.nn.Module):
             shape(-1, output_channels[0], 38, 38),
         """
         out_features = []
-
         output = x
-        for layer in self.layers:
+        for idx, layer in enumerate(self.layers):
+            
             out = layer(output)
+            
+            
             out_features.append(out)
             output = out
 
