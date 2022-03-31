@@ -50,6 +50,7 @@ model = L(SSD300)(
     num_classes=10 + 1  # Add 1 for background
 )
 
+
 optimizer = L(torch.optim.SGD)(
     # Tip: Scale the learning rate by batch size! 2.6e-3 is set for a batch size of 32. use 2*2.6e-3 if you use 64
     lr=5e-3, momentum=0.9, weight_decay=0.0005
