@@ -82,7 +82,6 @@ class BasicModel(torch.nn.Module):
         )
 
         self.b3 = torch.nn.Sequential(
-            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=output_channels[1],
                 out_channels=256,
@@ -102,7 +101,6 @@ class BasicModel(torch.nn.Module):
         )
 
         self.b4 = torch.nn.Sequential(
-            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=output_channels[2],
                 out_channels=128,
@@ -122,7 +120,6 @@ class BasicModel(torch.nn.Module):
         )
 
         self.b5 = torch.nn.Sequential(
-            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=output_channels[3],
                 out_channels=128,
@@ -142,7 +139,6 @@ class BasicModel(torch.nn.Module):
         )
 
         self.b6 = torch.nn.Sequential(
-            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=output_channels[4],
                 out_channels=128,
