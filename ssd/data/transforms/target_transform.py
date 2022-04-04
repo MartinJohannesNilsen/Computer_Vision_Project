@@ -10,7 +10,6 @@ class GroundTruthBoxesToAnchors(torch.nn.Module):
     def __init__(self, anchors, iou_threshold: float):
         super().__init__()
         self.iou_threshold = iou_threshold
-
         self.anchors = anchors
         self.encoder = AnchorEncoder(self.anchors)
 
