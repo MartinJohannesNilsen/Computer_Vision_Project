@@ -49,13 +49,12 @@ def create_histogram(
         plt.xticks(rotation=xtick_rotation)
     if ytick_fontsize:
         plt.yticks(fontsize=ytick_fontsize)
-    if ytick_fontsize:
-        plt.yticks(rotation=ytick_fontsize)
+    if ytick_rotation:
+        plt.yticks(rotation=ytick_rotation)
     if savefig_location:
         plt.savefig(savefig_location)
     if show:
         plt.show()
-
 
 def create_matrix():
     pass
