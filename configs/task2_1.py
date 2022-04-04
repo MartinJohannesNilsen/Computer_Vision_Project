@@ -8,12 +8,10 @@ from ssd.data.transforms import (
 from .ssd300 import train, anchors, optimizer, schedulers, backbone, model, data_train, data_val, loss_objective
 from .utils import get_dataset_dir
 
-
 # Keep the model, except change the backbone and number of classes
 train.imshape = (128, 1024)
 train.image_channels = 3
 model.num_classes = 8 + 1  # Add 1 for background class
-
 
 train_cpu_transform = L(torchvision.transforms.Compose)(transforms=[
     L(ToTensor)(),

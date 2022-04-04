@@ -20,8 +20,19 @@ def read_annotation(path):
     return data
 
 
-def create_histogram(dictionary, title, x_label="", y_label="", xtick_rotation=None, xtick_fontsize=None,
-                     ytick_rotation=None, ytick_fontsize=None, show=False, savefig_location=None, figsize=None):
+def create_histogram(
+    dictionary,
+    title,
+    x_label="",
+    y_label="",
+    xtick_rotation=None,
+    xtick_fontsize=None,
+    ytick_rotation=None,
+    ytick_fontsize=None,
+    show=False,
+    savefig_location=None,
+    figsize=None,
+):
     names = list(dictionary.keys())
     values = list(dictionary.values())
     plt.clf()
