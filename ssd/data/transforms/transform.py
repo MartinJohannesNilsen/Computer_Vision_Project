@@ -186,3 +186,18 @@ class Resize(torch.nn.Module):
     def forward(self, batch):
         batch["image"] = torchvision.transforms.functional.resize(batch["image"], self.imshape, antialias=True)
         return batch
+
+
+class RandomRotation(torch.nn.Module):
+    def __init__(self, rotation=3) -> None:
+        super().__init__()
+        self.rotation = rotation
+    
+    def __call__(self, sample):
+        image = sample["image"]
+        transform = torchvision.transforms.RandomRotation(degrees=self.rotation)
+        image = transform(image)
+        sample["image"] = image
+        return sample
+        
+

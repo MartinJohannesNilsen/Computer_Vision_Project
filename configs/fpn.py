@@ -14,7 +14,7 @@ train = dict(
     amp=True,  # Automatic mixed precision
     log_interval=20,
     seed=0,
-    epochs=50,
+    epochs=2,
     _output_dir=get_output_dir(),
     imshape=(300, 300),
     image_channels=3
@@ -35,7 +35,7 @@ anchors = L(AnchorBoxes)(
     scale_size_variance=0.2
 )
 
-backbone = L(backbones.BasicModel)(
+backbone = L(backbones.FPNModel)(
     output_channels=[128, 256, 128, 128, 64, 64],
     image_channels="${train.image_channels}",
     output_feature_sizes="${anchors.feature_sizes}"
@@ -72,7 +72,7 @@ data_train = dict(
         ])
     ),
     dataloader=L(torch.utils.data.DataLoader)(
-        dataset="${..dataset}", num_workers=2, pin_memory=True, shuffle=True, batch_size="${...train.batch_size}", collate_fn=utils.batch_collate,
+        dataset="${..dataset}", num_workers=4, pin_memory=True, shuffle=True, batch_size="${...train.batch_size}", collate_fn=utils.batch_collate,
         drop_last=True
     ),
     # GPU transforms can heavily speedup data augmentations.
@@ -89,7 +89,7 @@ data_val = dict(
         ])
     ),
     dataloader=L(torch.utils.data.DataLoader)(
-        dataset="${..dataset}", num_workers=2, pin_memory=True, shuffle=False, batch_size="${...train.batch_size}", collate_fn=utils.batch_collate_val
+        dataset="${..dataset}", num_workers=4, pin_memory=True, shuffle=False, batch_size="${...train.batch_size}", collate_fn=utils.batch_collate_val
     ),
     gpu_transform=L(torchvision.transforms.Compose)(transforms=[
         L(Normalize)(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
