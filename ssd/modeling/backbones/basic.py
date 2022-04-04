@@ -32,8 +32,8 @@ class BasicModel(torch.nn.Module):
                 stride=1,
                 padding=1,
             ),
-            torch.nn.MaxPool2d(kernel_size=2, stride=2),
             torch.nn.ReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
             torch.nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
@@ -62,7 +62,6 @@ class BasicModel(torch.nn.Module):
         )
 
         self.b2 = torch.nn.Sequential(
-            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=output_channels[0],
                 out_channels=128,
