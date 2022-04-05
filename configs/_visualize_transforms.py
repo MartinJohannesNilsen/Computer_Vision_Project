@@ -7,7 +7,7 @@ from ssd.data import TDT4265Dataset
 from tops.config import LazyCall as L
 from ssd.data.transforms import (
     Resize, ToTensor, Normalize, GroundTruthBoxesToAnchors,
-    RandomSampleCrop, RandomHorizontalFlip, RandomRotation, ColorJitter
+    RandomSampleCrop, RandomHorizontalFlip, RandomRotation, RandomColorJitter, RandomGrayscale, RandomAdjustSharpness
 )
 from .ssd300 import train, anchors, optimizer, schedulers, backbone, model, data_train, data_val, loss_objective
 from .utils import get_dataset_dir
@@ -17,19 +17,19 @@ Possible transforms, which all of them have been added in the ssd.data.transform
 The methods taken from Pytorch own library have been implemented with wrappers.
 - RandomSampleCrop
 - RandomHorizontalFlip
-- RandomRotation
 - ColorJitter
-- GrayScale / RandomGrayscale
-- RandomAffine
 - RandomEqualize
-- RandomAutocontrast
+- RandomAdjustSharpness
 """
 augmentation_transforms = [
     # L(RandomSampleCrop)(),
     L(ToTensor)(),  # Convert to tensor
     # L(RandomHorizontalFlip)(p=1),
     # L(RandomRotation)(rotation=3),
-    L(ColorJitter)(brightness=0, contrast=0, saturation=0, hue=0), # All defaults to 0
+    # L(RandomColorJitter)(brightness=0, contrast=0.5, saturation=0.5, hue=0.5),  # All defaults to 0
+    # L(RandomGrayscale)(p=1),
+    # L(RandomAdjustSharpness)(sharpness_factor=0, p=1),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
+    # L(RandomAdjustSharpness)(sharpness_factor=1.5, p=1),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
 ]
 
 # Keep all the other settings!

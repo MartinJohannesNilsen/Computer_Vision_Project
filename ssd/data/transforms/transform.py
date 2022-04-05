@@ -226,37 +226,14 @@ class RandomColorJitter(torch.nn.Module):
 
     def __init__(self, brightness=0, contrast=0, saturation=0, hue=0) -> None:
         super().__init__()
-        self.kwargs = {
-            brightness: brightness,
-            contrast: contrast,
-            saturation: saturation,
-            hue: hue,
-        }
+        self.brightness = brightness
+        self.contrast = contrast
+        self.saturation = saturation
+        self.hue = hue
 
     def __call__(self, sample):
         image = sample["image"]
-        print(self.kwargs)
-        transform = torchvision.transforms.ColorJitter(**{k: v for k, v in self.kwargs.items() if v is not None})
-        image = transform(image)
-        sample["image"] = image
-        return sample
-
-
-class RandomAutocontrast(torch.nn.Module):
-    """Autocontrast the pixels of the given image randomly with a given probability.
-
-    Args:
-        p (float): Probability of usage. Default value is 0.5
-    """
-
-    def __init__(self, p=0.5) -> None:
-        super().__init__()
-        self.p = p
-
-    def __call__(self, sample):
-        image = sample["image"]
-        print(self.kwargs)
-        transform = torchvision.transforms.RandomAutocontrast(p=self.p)
+        transform = torchvision.transforms.ColorJitter(brightness=self.brightness, contrast=self.contrast, saturation=self.saturation, hue=self.hue)
         image = transform(image)
         sample["image"] = image
         return sample
@@ -275,28 +252,7 @@ class RandomGrayscale(torch.nn.Module):
 
     def __call__(self, sample):
         image = sample["image"]
-        print(self.kwargs)
         transform = torchvision.transforms.RandomGrayscale(p=self.p)
-        image = transform(image)
-        sample["image"] = image
-        return sample
-
-
-class RandomEqualize(torch.nn.Module):
-    """Equalize the histogram of the given image randomly with a given probability.
-
-    Args:
-        p (float): Probability of usage. Default value is 0.5
-    """
-
-    def __init__(self, p=0.5) -> None:
-        super().__init__()
-        self.p = p
-
-    def __call__(self, sample):
-        image = sample["image"]
-        print(self.kwargs)
-        transform = torchvision.transforms.RandomEqualize(p=self.p)
         image = transform(image)
         sample["image"] = image
         return sample
@@ -317,8 +273,7 @@ class RandomAdjustSharpness(torch.nn.Module):
 
     def __call__(self, sample):
         image = sample["image"]
-        print(self.kwargs)
-        transform = torchvision.transforms.RandomAdjustSharpness(p=self.p)
+        transform = torchvision.transforms.RandomAdjustSharpness(sharpness_factor=self.sharpness_factor, p=self.p)
         image = transform(image)
         sample["image"] = image
         return sample
