@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import random
 
+
 class ToTensor:
     def __call__(self, sample):
         sample["image"] = torch.from_numpy(np.rollaxis(sample["image"], 2, 0)).float() / 255
@@ -37,6 +38,18 @@ def jaccard_numpy(box_a, box_b):
               (box_b[3] - box_b[1]))  # [A,B]
     union = area_a + area_b - inter
     return inter / union  # [A,B]
+
+
+class Resize(torch.nn.Module):
+
+    def __init__(self, imshape) -> None:
+        super().__init__()
+        self.imshape = tuple(imshape)
+
+    @torch.no_grad()
+    def forward(self, batch):
+        batch["image"] = torchvision.transforms.functional.resize(batch["image"], self.imshape, antialias=True)
+        return batch
 
 
 class RandomSampleCrop(torch.nn.Module):
@@ -143,12 +156,12 @@ class RandomSampleCrop(torch.nn.Module):
 
                 # should we use the box left and top corner or the crop's
                 current_boxes[:, :2] = np.maximum(current_boxes[:, :2],
-                                                    rect[:2])
+                                                  rect[:2])
                 # adjust to crop (by substracting crop's left,top)
                 current_boxes[:, :2] -= rect[:2]
 
                 current_boxes[:, 2:] = np.minimum(current_boxes[:, 2:],
-                                                    rect[2:])
+                                                  rect[2:])
                 # adjust to crop (by substracting crop's left,top)
                 current_boxes[:, 2:] -= rect[:2]
                 current_boxes[:, [0, 2]] /= w
@@ -161,6 +174,11 @@ class RandomSampleCrop(torch.nn.Module):
 
 
 class RandomHorizontalFlip(torch.nn.Module):
+    """Horizontally flip the given image and corresponding labels randomly with a given probability.
+
+    Args:
+        p (float): Probability of usage. Default value is 0.5
+    """
 
     def __init__(self, p=0.5) -> None:
         super().__init__()
@@ -176,28 +194,86 @@ class RandomHorizontalFlip(torch.nn.Module):
         return sample
 
 
-class Resize(torch.nn.Module):
-
-    def __init__(self, imshape) -> None:
-        super().__init__()
-        self.imshape = tuple(imshape)
-
-    @torch.no_grad()
-    def forward(self, batch):
-        batch["image"] = torchvision.transforms.functional.resize(batch["image"], self.imshape, antialias=True)
-        return batch
-
-
 class RandomRotation(torch.nn.Module):
+    """Rotate the image by angle.
+
+    NOTE: THIS WILL NOT WORK AS LABELS ARE NOT ROTATED NOR ADJUSTED
+    Args:
+        rotation (float): Value defining min and max for possible rotation in either direction.
+    """
+
     def __init__(self, rotation=3) -> None:
         super().__init__()
         self.rotation = rotation
-    
+
     def __call__(self, sample):
         image = sample["image"]
         transform = torchvision.transforms.RandomRotation(degrees=self.rotation)
         image = transform(image)
         sample["image"] = image
         return sample
-        
 
+
+class RandomColorJitter(torch.nn.Module):
+    """Adjust the sharpness of the image randomly with a given probability.
+
+    Args:
+        brightness (float): Randomly brighten or darken image by a factor in range [0,1]. Default 0 as original brightness.
+        brightness (float): Randomly increase or decrease contrast by a factor in range [0,1]. Default 0 as original contrast.
+        saturation (float): Randomly saturate or desaturate image by a factor in range [0,1]. Default 0 as original saturation.
+        hue (float): Randomly increase or decrease hue by a factor in range [0,1]. Default 0 as original hue.
+    """
+
+    def __init__(self, brightness=0, contrast=0, saturation=0, hue=0) -> None:
+        super().__init__()
+        self.brightness = brightness
+        self.contrast = contrast
+        self.saturation = saturation
+        self.hue = hue
+
+    def __call__(self, sample):
+        image = sample["image"]
+        transform = torchvision.transforms.ColorJitter(brightness=self.brightness, contrast=self.contrast, saturation=self.saturation, hue=self.hue)
+        image = transform(image)
+        sample["image"] = image
+        return sample
+
+
+class RandomGrayscale(torch.nn.Module):
+    """Randomly convert image to grayscale with a probability of p.
+
+    Args:
+        p (float): Probability of usage. Default value is 0.1
+    """
+
+    def __init__(self, p=0.1) -> None:
+        super().__init__()
+        self.p = p
+
+    def __call__(self, sample):
+        image = sample["image"]
+        transform = torchvision.transforms.RandomGrayscale(p=self.p)
+        image = transform(image)
+        sample["image"] = image
+        return sample
+
+
+class RandomAdjustSharpness(torch.nn.Module):
+    """Adjust the sharpness of the image randomly with a given probability.
+
+    Args:
+        sharpness_factor (float): Number for sharpness adjustment, where 0 will blur and 2 will sharpen. Default 1 for original sharpness.
+        p (float): Probability of usage. Default value is 0.5
+    """
+
+    def __init__(self, sharpness_factor=1, p=0.5) -> None:
+        super().__init__()
+        self.sharpness_factor = sharpness_factor
+        self.p = p
+
+    def __call__(self, sample):
+        image = sample["image"]
+        transform = torchvision.transforms.RandomAdjustSharpness(sharpness_factor=self.sharpness_factor, p=self.p)
+        image = transform(image)
+        sample["image"] = image
+        return sample
