@@ -174,6 +174,11 @@ class RandomSampleCrop(torch.nn.Module):
 
 
 class RandomHorizontalFlip(torch.nn.Module):
+    """Horizontally flip the given image and corresponding labels randomly with a given probability.
+
+    Args:
+        p (float): Probability of usage. Default value is 0.5
+    """
 
     def __init__(self, p=0.5) -> None:
         super().__init__()
@@ -190,6 +195,13 @@ class RandomHorizontalFlip(torch.nn.Module):
 
 
 class RandomRotation(torch.nn.Module):
+    """Rotate the image by angle.
+
+    NOTE: THIS WILL NOT WORK AS LABELS ARE NOT ROTATED NOR ADJUSTED
+    Args:
+        rotation (float): Value defining min and max for possible rotation in either direction.
+    """
+
     def __init__(self, rotation=3) -> None:
         super().__init__()
         self.rotation = rotation
@@ -202,7 +214,16 @@ class RandomRotation(torch.nn.Module):
         return sample
 
 
-class ColorJitter(torch.nn.Module):
+class RandomColorJitter(torch.nn.Module):
+    """Adjust the sharpness of the image randomly with a given probability.
+
+    Args:
+        brightness (float): Randomly brighten or darken image by a factor in range [0,1]. Default 0 as original brightness.
+        brightness (float): Randomly increase or decrease contrast by a factor in range [0,1]. Default 0 as original contrast.
+        saturation (float): Randomly saturate or desaturate image by a factor in range [0,1]. Default 0 as original saturation.
+        hue (float): Randomly increase or decrease hue by a factor in range [0,1]. Default 0 as original hue.
+    """
+
     def __init__(self, brightness=0, contrast=0, saturation=0, hue=0) -> None:
         super().__init__()
         self.kwargs = {
@@ -221,20 +242,83 @@ class ColorJitter(torch.nn.Module):
         return sample
 
 
-class ColorJitter(torch.nn.Module):
-    def __init__(self, brightness=0, contrast=0, saturation=0, hue=0) -> None:
+class RandomAutocontrast(torch.nn.Module):
+    """Autocontrast the pixels of the given image randomly with a given probability.
+
+    Args:
+        p (float): Probability of usage. Default value is 0.5
+    """
+
+    def __init__(self, p=0.5) -> None:
         super().__init__()
-        self.kwargs = {
-            brightness: brightness,
-            contrast: contrast,
-            saturation: saturation,
-            hue: hue,
-        }
+        self.p = p
 
     def __call__(self, sample):
         image = sample["image"]
         print(self.kwargs)
-        transform = torchvision.transforms.ColorJitter(**{k: v for k, v in self.kwargs.items() if v is not None})
+        transform = torchvision.transforms.RandomAutocontrast(p=self.p)
+        image = transform(image)
+        sample["image"] = image
+        return sample
+
+
+class RandomGrayscale(torch.nn.Module):
+    """Randomly convert image to grayscale with a probability of p.
+
+    Args:
+        p (float): Probability of usage. Default value is 0.1
+    """
+
+    def __init__(self, p=0.1) -> None:
+        super().__init__()
+        self.p = p
+
+    def __call__(self, sample):
+        image = sample["image"]
+        print(self.kwargs)
+        transform = torchvision.transforms.RandomGrayscale(p=self.p)
+        image = transform(image)
+        sample["image"] = image
+        return sample
+
+
+class RandomEqualize(torch.nn.Module):
+    """Equalize the histogram of the given image randomly with a given probability.
+
+    Args:
+        p (float): Probability of usage. Default value is 0.5
+    """
+
+    def __init__(self, p=0.5) -> None:
+        super().__init__()
+        self.p = p
+
+    def __call__(self, sample):
+        image = sample["image"]
+        print(self.kwargs)
+        transform = torchvision.transforms.RandomEqualize(p=self.p)
+        image = transform(image)
+        sample["image"] = image
+        return sample
+
+
+class RandomAdjustSharpness(torch.nn.Module):
+    """Adjust the sharpness of the image randomly with a given probability.
+
+    Args:
+        sharpness_factor (float): Number for sharpness adjustment, where 0 will blur and 2 will sharpen. Default 1 for original sharpness.
+        p (float): Probability of usage. Default value is 0.5
+    """
+
+    def __init__(self, sharpness_factor=1, p=0.5) -> None:
+        super().__init__()
+        self.sharpness_factor = sharpness_factor
+        self.p = p
+
+    def __call__(self, sample):
+        image = sample["image"]
+        print(self.kwargs)
+        transform = torchvision.transforms.RandomAdjustSharpness(p=self.p)
         image = transform(image)
         sample["image"] = image
         return sample
