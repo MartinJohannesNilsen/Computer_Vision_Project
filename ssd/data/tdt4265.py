@@ -19,7 +19,6 @@ class TDT4265Dataset(data.Dataset):
             self.data = json.load(fin)
 
         self.images = {}
-
         self.label_map = {}
         self.label_info = {}
         cnt = 0
@@ -49,8 +48,8 @@ class TDT4265Dataset(data.Dataset):
                 self.images.pop(k)
         self.img_keys = list(self.images.keys())
         # Sorts the dataset to iterate over frames in the correct order
-        sort_frame = lambda k: int(str(pathlib.Path(k).stem.split("_")[-1]))
-        sort_video = lambda k: int(str(pathlib.Path(k).stem.split("_")[-2].replace("Video", "")))
+        def sort_frame(k): return int(str(pathlib.Path(k).stem.split("_")[-1]))
+        def sort_video(k): return int(str(pathlib.Path(k).stem.split("_")[-2].replace("Video", "")))
         self.img_keys.sort(key=lambda key: sort_frame(self.images[key][0]))
         self.img_keys.sort(key=lambda key: sort_video(self.images[key][0]))
         self.transform = transform
@@ -64,7 +63,6 @@ class TDT4265Dataset(data.Dataset):
         fn = img_data[0]
         img_path = os.path.join(self.img_folder, fn)
         img = Image.open(img_path).convert("RGB")
-
         htot, wtot = img_data[1]
         bbox_ltrb = []
         bbox_labels = []
@@ -82,7 +80,8 @@ class TDT4265Dataset(data.Dataset):
 
         sample = dict(
             image=img, boxes=bbox_ltrb, labels=bbox_labels,
-            width=wtot, height=htot, image_id=img_id
+            width=wtot, height=htot, image_id=img_id,
+            img_path=img_path  # For visualization we need the path to the images
         )
         if self.transform:
             sample = self.transform(sample)

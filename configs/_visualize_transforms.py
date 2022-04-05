@@ -6,20 +6,14 @@ import torch
 from ssd.data import TDT4265Dataset
 from tops.config import LazyCall as L
 from ssd.data.transforms import (
-    RandomHorizontalFlip, RandomSampleCrop,
-    ToTensor, Normalize, Resize,
-    GroundTruthBoxesToAnchors)
+    Resize, ToTensor, Normalize, GroundTruthBoxesToAnchors,
+    RandomSampleCrop, RandomHorizontalFlip, RandomRotation, ColorJitter
+)
 from .ssd300 import train, anchors, optimizer, schedulers, backbone, model, data_train, data_val, loss_objective
 from .utils import get_dataset_dir
 
-
-# Keep the model, except change the backbone and number of classes
-train.imshape = (128, 1024)
-train.image_channels = 3
-model.num_classes = 8 + 1  # Add 1 for background class
-
 """
-Possible transforms, which all of them have been added in the ssd.data.transforms file. 
+Possible transforms, which all of them have been added in the ssd.data.transforms file.
 The methods taken from Pytorch own library have been implemented with wrappers.
 - RandomSampleCrop
 - RandomHorizontalFlip
@@ -30,14 +24,25 @@ The methods taken from Pytorch own library have been implemented with wrappers.
 - RandomEqualize
 - RandomAutocontrast
 """
-train_cpu_transform = L(torchvision.transforms.Compose)(transforms=[
-    L(RandomSampleCrop)(),
-    L(ToTensor)(),
-    L(RandomHorizontalFlip)(),
-    L(Resize)(imshape="${train.imshape}"),
-    L(GroundTruthBoxesToAnchors)(anchors="${anchors}", iou_threshold=0.5),
-])
+augmentation_transforms = [
+    # L(RandomSampleCrop)(),
+    L(ToTensor)(),  # Convert to tensor
+    # L(RandomHorizontalFlip)(p=1),
+    # L(RandomRotation)(rotation=3),
+    L(ColorJitter)(brightness=0, contrast=0, saturation=0, hue=0), # All defaults to 0
+]
 
+# Keep all the other settings!
+train.imshape = (128, 1024)
+train.image_channels = 3
+model.num_classes = 8 + 1  # Add 1 for background class
+transforms = [
+    L(Resize)(imshape="${train.imshape}"),  # Reassure all images are correct size
+    L(GroundTruthBoxesToAnchors)(anchors="${anchors}", iou_threshold=0.5),  # Draw boxes
+]
+for elem in reversed(augmentation_transforms):
+    transforms.insert(0, elem)  # Insert all augmentation transforms after ToTensor(), before resize and gt boxes, in correct order
+train_cpu_transform = L(torchvision.transforms.Compose)(transforms=transforms)
 val_cpu_transform = L(torchvision.transforms.Compose)(transforms=[
     L(ToTensor)(),
     L(Resize)(imshape="${train.imshape}"),
@@ -55,7 +60,7 @@ data_train.dataset = L(TDT4265Dataset)(
 data_val.dataset = L(TDT4265Dataset)(
     img_folder=get_dataset_dir("tdt4265_2022"),
     transform="${val_cpu_transform}",
-    annotation_file=get_dataset_dir("tdt4265_2022/val_annotations.json"))
+    annotation_file=get_dataset_dir("tdt4265_2022/train_annotations.json"))
 data_val.gpu_transform = gpu_transform
 data_train.gpu_transform = gpu_transform
 

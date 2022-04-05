@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import random
 
+
 class ToTensor:
     def __call__(self, sample):
         sample["image"] = torch.from_numpy(np.rollaxis(sample["image"], 2, 0)).float() / 255
@@ -37,6 +38,18 @@ def jaccard_numpy(box_a, box_b):
               (box_b[3] - box_b[1]))  # [A,B]
     union = area_a + area_b - inter
     return inter / union  # [A,B]
+
+
+class Resize(torch.nn.Module):
+
+    def __init__(self, imshape) -> None:
+        super().__init__()
+        self.imshape = tuple(imshape)
+
+    @torch.no_grad()
+    def forward(self, batch):
+        batch["image"] = torchvision.transforms.functional.resize(batch["image"], self.imshape, antialias=True)
+        return batch
 
 
 class RandomSampleCrop(torch.nn.Module):
@@ -143,12 +156,12 @@ class RandomSampleCrop(torch.nn.Module):
 
                 # should we use the box left and top corner or the crop's
                 current_boxes[:, :2] = np.maximum(current_boxes[:, :2],
-                                                    rect[:2])
+                                                  rect[:2])
                 # adjust to crop (by substracting crop's left,top)
                 current_boxes[:, :2] -= rect[:2]
 
                 current_boxes[:, 2:] = np.minimum(current_boxes[:, 2:],
-                                                    rect[2:])
+                                                  rect[2:])
                 # adjust to crop (by substracting crop's left,top)
                 current_boxes[:, 2:] -= rect[:2]
                 current_boxes[:, [0, 2]] /= w
@@ -156,7 +169,7 @@ class RandomSampleCrop(torch.nn.Module):
 
                 sample["image"] = current_image
                 sample["boxes"] = current_boxes
-                sample["lables"] = current_labels
+                sample["labels"] = current_labels
                 return sample
 
 
@@ -176,28 +189,52 @@ class RandomHorizontalFlip(torch.nn.Module):
         return sample
 
 
-class Resize(torch.nn.Module):
-
-    def __init__(self, imshape) -> None:
-        super().__init__()
-        self.imshape = tuple(imshape)
-
-    @torch.no_grad()
-    def forward(self, batch):
-        batch["image"] = torchvision.transforms.functional.resize(batch["image"], self.imshape, antialias=True)
-        return batch
-
-
 class RandomRotation(torch.nn.Module):
     def __init__(self, rotation=3) -> None:
         super().__init__()
         self.rotation = rotation
-    
+
     def __call__(self, sample):
         image = sample["image"]
         transform = torchvision.transforms.RandomRotation(degrees=self.rotation)
         image = transform(image)
         sample["image"] = image
         return sample
-        
 
+
+class ColorJitter(torch.nn.Module):
+    def __init__(self, brightness=0, contrast=0, saturation=0, hue=0) -> None:
+        super().__init__()
+        self.kwargs = {
+            brightness: brightness,
+            contrast: contrast,
+            saturation: saturation,
+            hue: hue,
+        }
+
+    def __call__(self, sample):
+        image = sample["image"]
+        print(self.kwargs)
+        transform = torchvision.transforms.ColorJitter(**{k: v for k, v in self.kwargs.items() if v is not None})
+        image = transform(image)
+        sample["image"] = image
+        return sample
+
+
+class ColorJitter(torch.nn.Module):
+    def __init__(self, brightness=0, contrast=0, saturation=0, hue=0) -> None:
+        super().__init__()
+        self.kwargs = {
+            brightness: brightness,
+            contrast: contrast,
+            saturation: saturation,
+            hue: hue,
+        }
+
+    def __call__(self, sample):
+        image = sample["image"]
+        print(self.kwargs)
+        transform = torchvision.transforms.ColorJitter(**{k: v for k, v in self.kwargs.items() if v is not None})
+        image = transform(image)
+        sample["image"] = image
+        return sample
