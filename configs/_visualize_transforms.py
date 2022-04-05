@@ -27,7 +27,7 @@ augmentation_transforms = [
     # L(RandomHorizontalFlip)(p=1),
     # L(RandomRotation)(rotation=3),
     # L(RandomColorJitter)(brightness=0, contrast=0.5, saturation=0.5, hue=0.5),  # All defaults to 0
-    # L(RandomGrayscale)(p=1),
+    L(RandomGrayscale)(p=1),
     # L(RandomAdjustSharpness)(sharpness_factor=0, p=1),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
     # L(RandomAdjustSharpness)(sharpness_factor=1.5, p=1),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
 ]
