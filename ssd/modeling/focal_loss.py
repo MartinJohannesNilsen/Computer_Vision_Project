@@ -2,7 +2,28 @@ import torch.nn as nn
 import torch
 import math
 import torch.nn.functional as F
+def hard_negative_mining(loss, labels, neg_pos_ratio):
+    """
+    It used to suppress the presence of a large number of negative prediction.
+    It works on image level not batch level.
+    For any example/image, it keeps all the positive predictions and
+     cut the number of negative predictions to make sure the ratio
+     between the negative examples and positive examples is no more
+     the given ratio for an image.
+    Args:
+        loss (N, num_priors): the loss for each example.
+        labels (N, num_priors): the labels.
+        neg_pos_ratio:  the ratio between the negative examples and positive examples.
+    """
+    pos_mask = labels > 0
+    num_pos = pos_mask.long().sum(dim=1, keepdim=True)
+    num_neg = num_pos * neg_pos_ratio
 
+    loss[pos_mask] = -math.inf
+    _, indexes = loss.sort(dim=1, descending=True)
+    _, orders = indexes.sort(dim=1)
+    neg_mask = orders < num_neg
+    return pos_mask | neg_mask
 
 class FocalLoss(nn.Module):
     """
@@ -44,13 +65,15 @@ class FocalLoss(nn.Module):
         """
         
         gt_bbox = gt_bbox.transpose(1, 2).contiguous() # reshape to [batch_size, 4, num_anchors]
-        with torch.no_grad():
-            soft_max = F.softmax(confs, dim=1)[:, 0]
-            log_soft_max = F.log_softmax(confs, dim=1)[:, 0]
-            one_hot = F.one_hot(gt_labels, self.num_classes)
         
+        with torch.no_grad():
+            log_soft_max = F.log_softmax(confs, dim=1)[:, 0]
+            soft_max = torch.exp(log_soft_max)
+            one_hot = F.one_hot(gt_labels, self.num_classes)
+
         soft_max_exp = torch.pow(1-soft_max, self.gamma)
-        classification_loss = - torch.sum((self.alpha * one_hot).transpose(0, 2).transpose(1, 2).contiguous() * (soft_max_exp * log_soft_max)) # Focal loss
+        
+        classification_loss = - torch.sum(self.alpha * (soft_max_exp.T * one_hot.T * log_soft_max.T).T)
         
         pos_mask = (gt_labels > 0).unsqueeze(1).repeat(1, 4, 1)
         bbox_delta = bbox_delta[pos_mask]
