@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch
 import math
 import torch.nn.functional as F
+from torch.autograd import Variable
 
 
 class FocalLoss(nn.Module):
@@ -42,16 +43,21 @@ class FocalLoss(nn.Module):
             gt_bbox: [batch_size, num_anchors, 4]
             gt_labels: [batch_size, num_anchors]
         """
-        
         gt_bbox = gt_bbox.transpose(1, 2).contiguous() # reshape to [batch_size, 4, num_anchors]
-        with torch.no_grad():
-            soft_max = F.softmax(confs, dim=1)[:, 0]
-            log_soft_max = F.log_softmax(confs, dim=1)[:, 0]
-            one_hot = F.one_hot(gt_labels, self.num_classes)
+        # compute softmax over the classes axis
+        input_soft = F.softmax(confs, dim=1)
+
+        # create the labels one hot tensor
+        target_one_hot = F.one_hot(gt_labels, num_classes=self.num_classes)
+
+        # compute the actual focal loss
+        weight = torch.pow(1.0 - input_soft, self.gamma)
         
-        soft_max_exp = torch.pow(1-soft_max, self.gamma)
-        classification_loss = - torch.sum((self.alpha * one_hot).transpose(0, 2).transpose(1, 2).contiguous() * (soft_max_exp * log_soft_max)) # Focal loss
-        
+        a = -self.alpha * weight.mT
+        b = a * torch.log(input_soft).mT
+        focal = -self.alpha * weight.mT * torch.log(input_soft).mT
+        classification_loss = torch.sum(target_one_hot * focal, dim=1)
+        classification_loss = torch.sum(classification_loss)
         pos_mask = (gt_labels > 0).unsqueeze(1).repeat(1, 4, 1)
         bbox_delta = bbox_delta[pos_mask]
         gt_locations = self._loc_vec(gt_bbox)

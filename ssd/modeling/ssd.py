@@ -2,14 +2,15 @@ import torch
 import torch.nn as nn
 from .anchor_encoder import AnchorEncoder
 from torchvision.ops import batched_nms
-
+import numpy as np
 
 class SSD300(nn.Module):
     def __init__(self, 
             feature_extractor: nn.Module,
             anchors,
             loss_objective,
-            num_classes: int):
+            num_classes: int,
+            use_improved_weight_init = False):
         super().__init__()
         """
             Implements the SSD network.
@@ -21,6 +22,7 @@ class SSD300(nn.Module):
         self.num_classes = num_classes
         self.regression_heads = []
         self.classification_heads = []
+        self.use_improved_weight_init = use_improved_weight_init
         # Initialize output heads that are applied to each feature map from the backbone.
         for n_boxes, out_ch in zip(anchors.num_boxes_per_fmap, self.feature_extractor.out_channels):
             self.regression_heads.append(nn.Conv2d(out_ch, n_boxes * 4, kernel_size=3, padding=1))
@@ -30,13 +32,33 @@ class SSD300(nn.Module):
         self.classification_heads = nn.ModuleList(self.classification_heads)
         self.anchor_encoder = AnchorEncoder(anchors)
         self._init_weights()
-
+    
     def _init_weights(self):
         layers = [*self.regression_heads, *self.classification_heads]
-        for layer in layers:
-            for param in layer.parameters():
-                if param.dim() > 1: nn.init.xavier_uniform_(param)
-
+        if self.use_improved_weight_init:
+            count = 0
+            p = 0.99
+            for idx, layer in enumerate(layers):
+                if idx == len(layers) -1:
+                    layer.bias.data.fill_(np.log(p*((self.num_classes -1.0)/(1.0-p))))
+                else:
+                    layer.bias.data.fill_(0.)
+        else:
+            for layer in layers:
+                for param in layer.parameters():
+                    if param.dim() > 1: nn.init.xavier_uniform_(param)
+    
+    # Task 2.3 - Weight Initialization
+    def _init_weights(self):
+        count = 0
+        p = 0.99
+        layers = [*self.regression_heads, *self.classification_heads]
+        for idx, layer in enumerate(layers):
+            if idx == len(layers) -1:
+                layer.bias.data.fill_(np.log(p*((self.num_classes -1.0)/(1.0-p))))
+            else:
+                layer.bias.data.fill_(0.)
+    
     def regress_boxes(self, features):
         locations = []
         confidences = []

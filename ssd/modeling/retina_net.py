@@ -32,10 +32,24 @@ class RetinaNet(nn.Module):
         self._init_weights()
 
     def _init_weights(self):
-        layers = [*self.regression_heads, *self.classification_heads]
-        for layer in layers:
-            for param in layer.parameters():
-                if param.dim() > 1: nn.init.xavier_uniform_(param)
+        '''
+            Note:
+            I don't know if this is the right place to improve, and I do not know that I am doing it
+            correctly. May need to discuss this later
+        '''
+        layers = [*self.regression_heads, *self.classification_heads] 
+        if self.use_improved_weight_init:
+            count = 0
+            p = 0.99
+            for idx, layer in enumerate(layers):
+                if idx == len(layers) -1:
+                    layer.bias.data.fill_(np.log(p*((self.num_classes -1.0)/(1.0-p))))
+                else:
+                    layer.bias.data.fill_(0.)
+        else:
+            for layer in layers:
+                for param in layer.parameters():
+                    if param.dim() > 1: nn.init.xavier_uniform_(param)
 
     def regress_boxes(self, features):
         locations = []
