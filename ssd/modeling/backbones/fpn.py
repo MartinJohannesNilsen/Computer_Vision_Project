@@ -14,6 +14,7 @@ class FPNModel(nn.Module):
             image_channels: int,
             input_channels: List[int],
             output_feature_sizes: List[Tuple[int]],
+        
         ):
         super().__init__()
         

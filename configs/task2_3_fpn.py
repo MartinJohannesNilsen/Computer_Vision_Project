@@ -18,5 +18,3 @@ feature_extractor = L(backbones.FPNModel)(
     output_feature_sizes="${anchors.feature_sizes}"
 )
 model.feature_extractor = feature_extractor
-
-

@@ -12,5 +12,15 @@ from .task2_3_fpn import train_cpu_transform, val_cpu_transform,model, gpu_trans
 
 loss_objective = L(FocalLoss)(anchors = "${model.anchors}", alpha = torch.as_tensor([0.01,*[1.0 for i in range (model.num_classes-1)]]).to("cuda"), gamma = 2.0,num_classes = model.num_classes)
 
+feature_extractor = L(backbones.FPNModel)(
+    input_channels=[64, 128, 256, 512, 1024, 2048],
+    output_channels=[256, 256, 256, 256, 256, 256],
+    image_channels="${train.image_channels}",
+    output_feature_sizes="${anchors.feature_sizes}",
+)
+
 # model.loss_objective = loss_objective
+
+# We struggled with NaN values
+model.use_improved_weight_init = True
 
