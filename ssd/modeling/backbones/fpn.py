@@ -23,7 +23,7 @@ class FPNModel(nn.Module):
         self.output_feature_shape = output_feature_sizes 
         self.image_channels = image_channels
         self.model = torchvision.models.resnet34(pretrained=True).to('cuda')
-
+        
         self.layer5 = nn.Sequential(
             torch.nn.Conv2d(
                 in_channels=512,

@@ -24,99 +24,103 @@ class RetinaNet(nn.Module):
         self.use_improved_weight_init = use_improved_weight_init
         self.regression_heads = []
         self.classification_heads = []
-
-        # Initialize output heads that are applied to each feature map from the backbone.
-
         for n_boxes, out_ch in zip(anchors.num_boxes_per_fmap, self.feature_extractor.out_channels):
-            self.classification_heads.append(
-                nn.Sequential(
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels= self.num_classes * n_boxes,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.Sigmoid()
-                )                
-            )
+            self.regression_heads.append(nn.Conv2d(out_ch, n_boxes * 4, kernel_size=3, padding=1))
+            self.classification_heads.append(nn.Conv2d(out_ch, n_boxes * self.num_classes, kernel_size=3, padding=1))
+        
+        # Initialize output heads that are applied to each feature map from the backbone.
+        '''
+        for n_boxes, out_ch in zip(anchors.num_boxes_per_fmap, self.feature_extractor.out_channels):
+            self.classification_heads.extend([
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels= self.num_classes * n_boxes,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.Sigmoid()              
+            ])
 
-            self.regression_heads.append(
-                nn.Sequential(
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels=out_ch,
-                        kernel_size=3,
-                        padding=1
-                    ),
-                    nn.ReLU(),
-                    nn.Conv2d(
-                        in_channels=out_ch,
-                        out_channels= 4 * n_boxes,
-                        kernel_size=3,
-                        padding=1
-                    )
-                )     
-            )
-
+            self.regression_heads.extend([
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels=out_ch,
+                    kernel_size=3,
+                    padding=1
+                ),
+                nn.ReLU(),
+                nn.Conv2d(
+                    in_channels=out_ch,
+                    out_channels= 4 * n_boxes,
+                    kernel_size=3,
+                    padding=1
+                )
+            ])
+        '''
         self.regression_heads = nn.ModuleList(self.regression_heads)
         self.classification_heads = nn.ModuleList(self.classification_heads)
         self.anchor_encoder = AnchorEncoder(anchors)
         self._init_weights()
 
-    def _init_weights(self):                
-        layers = [*self.regression_heads, *self.classification_heads] 
+    def _init_weights(self):
+        
+        # layers = [*self.regression_heads, *self.classification_heads] 
         p = 0.99
         if self.use_improved_weight_init:
+            
+            
+            '''
             for idx, layer in enumerate(layers):
+                
                 if idx == len(layers) - 1:
                     for l in layer.children():
                         if isinstance(l, nn.Conv2d): 
@@ -127,7 +131,7 @@ class RetinaNet(nn.Module):
                         if isinstance(l, nn.Conv2d): 
                             torch.nn.init.normal_(l.weight, std=0.01)
                             torch.nn.init.constant_(l.bias, 0)
-                    
+            '''
         else:
             for layer in layers:
                 for param in layer.parameters():
@@ -137,7 +141,11 @@ class RetinaNet(nn.Module):
         locations = []
         confidences = []
         for idx, x in enumerate(features):
+            print(self.regression_heads[idx](x).shape)
+            print("-"*20)
+            print(x.shape)
             bbox_delta = self.regression_heads[idx](x).view(x.shape[0], 4, -1)
+            print(self.classification_heads[idx](x).shape)
             bbox_conf = self.classification_heads[idx](x).view(x.shape[0], self.num_classes, -1)
             locations.append(bbox_delta)
             confidences.append(bbox_conf)
