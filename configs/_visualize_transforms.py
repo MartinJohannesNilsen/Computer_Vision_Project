@@ -17,8 +17,8 @@ Possible transforms, which all of them have been added in the ssd.data.transform
 The methods taken from Pytorch own library have been implemented with wrappers.
 - RandomSampleCrop
 - RandomHorizontalFlip
-- ColorJitter
-- RandomEqualize
+- RandomColorJitter
+- RandomGrayscale
 - RandomAdjustSharpness
 """
 augmentation_transforms = [
