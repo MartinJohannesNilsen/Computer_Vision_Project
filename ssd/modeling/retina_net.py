@@ -29,7 +29,7 @@ class RetinaNet(nn.Module):
             self.classification_heads.append(nn.Conv2d(out_ch, n_boxes * self.num_classes, kernel_size=3, padding=1))
         
         # Initialize output heads that are applied to each feature map from the backbone.
-        '''
+        
         for n_boxes, out_ch in zip(anchors.num_boxes_per_fmap, self.feature_extractor.out_channels):
             self.classification_heads.extend([
                 nn.Conv2d(
@@ -105,33 +105,25 @@ class RetinaNet(nn.Module):
                     padding=1
                 )
             ])
-        '''
+        
         self.regression_heads = nn.ModuleList(self.regression_heads)
         self.classification_heads = nn.ModuleList(self.classification_heads)
         self.anchor_encoder = AnchorEncoder(anchors)
         self._init_weights()
 
     def _init_weights(self):
-        
-        # layers = [*self.regression_heads, *self.classification_heads] 
+        layers = [*self.regression_heads, *self.classification_heads]
         p = 0.99
         if self.use_improved_weight_init:
-            
-            
-            '''
             for idx, layer in enumerate(layers):
-                
-                if idx == len(layers) - 1:
-                    for l in layer.children():
-                        if isinstance(l, nn.Conv2d): 
-                            torch.nn.init.normal_(l.weight, std=0.01)
-                            torch.nn.init.constant_(l.bias, -math.log((1-p) / p))
-                else:
-                    for l in layer.children():
-                        if isinstance(l, nn.Conv2d): 
-                            torch.nn.init.normal_(l.weight, std=0.01)
-                            torch.nn.init.constant_(l.bias, 0)
-            '''
+                if isinstance(layer, nn.Conv2d):
+                    if idx == len(layers) - 1:
+                        torch.nn.init.normal_(layer.weight, std=0.01)
+                        torch.nn.init.constant_(layer.bias, -math.log((1-p) / p))
+                    else:
+                        torch.nn.init.normal_(layer.weight, std=0.01)
+                        torch.nn.init.constant_(layer.bias, 0)
+                    
         else:
             for layer in layers:
                 for param in layer.parameters():
@@ -141,11 +133,7 @@ class RetinaNet(nn.Module):
         locations = []
         confidences = []
         for idx, x in enumerate(features):
-            print(self.regression_heads[idx](x).shape)
-            print("-"*20)
-            print(x.shape)
             bbox_delta = self.regression_heads[idx](x).view(x.shape[0], 4, -1)
-            print(self.classification_heads[idx](x).shape)
             bbox_conf = self.classification_heads[idx](x).view(x.shape[0], self.num_classes, -1)
             locations.append(bbox_delta)
             confidences.append(bbox_conf)
@@ -188,26 +176,26 @@ class RetinaNet(nn.Module):
 
 
 def filter_predictions(
-        boxes_ltrb: torch.Tensor, confs: torch.Tensor,
-        nms_iou_threshold: float, max_output: int, score_threshold: float):
-        """
-            boxes_ltrb: shape [N, 4]
-            confs: shape [N, num_classes]
-        """
-        assert 0 <= nms_iou_threshold <= 1
-        assert max_output > 0
-        assert 0 <= score_threshold <= 1
-        scores, category = confs.max(dim=1)
+    boxes_ltrb: torch.Tensor, confs: torch.Tensor,
+    nms_iou_threshold: float, max_output: int, score_threshold: float):
+    """
+        boxes_ltrb: shape [N, 4]
+        confs: shape [N, num_classes]
+    """
+    assert 0 <= nms_iou_threshold <= 1
+    assert max_output > 0
+    assert 0 <= score_threshold <= 1
+    scores, category = confs.max(dim=1)
 
-        # 1. Remove low confidence boxes / background boxes
-        mask = (scores > score_threshold).logical_and(category != 0)
-        boxes_ltrb = boxes_ltrb[mask]
-        scores = scores[mask]
-        category = category[mask]
+    # 1. Remove low confidence boxes / background boxes
+    mask = (scores > score_threshold).logical_and(category != 0)
+    boxes_ltrb = boxes_ltrb[mask]
+    scores = scores[mask]
+    category = category[mask]
 
-        # 2. Perform non-maximum-suppression
-        keep_idx = batched_nms(boxes_ltrb, scores, category, iou_threshold=nms_iou_threshold)
+    # 2. Perform non-maximum-suppression
+    keep_idx = batched_nms(boxes_ltrb, scores, category, iou_threshold=nms_iou_threshold)
 
-        # 3. Only keep max_output best boxes (NMS returns indices in sorted order, decreasing w.r.t. scores)
-        keep_idx = keep_idx[:max_output]
-        return boxes_ltrb[keep_idx], category[keep_idx], scores[keep_idx]
+    # 3. Only keep max_output best boxes (NMS returns indices in sorted order, decreasing w.r.t. scores)
+    keep_idx = keep_idx[:max_output]
+    return boxes_ltrb[keep_idx], category[keep_idx], scores[keep_idx]
