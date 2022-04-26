@@ -33,8 +33,7 @@ class SSD300(nn.Module):
         self.anchor_encoder = AnchorEncoder(anchors)
         self._init_weights()
     
-    def _init_weights(self):
-        
+    def _init_weights(self):  
         layers = [*self.regression_heads, *self.classification_heads] 
         p = 0.99
         if self.use_improved_weight_init:
@@ -45,7 +44,6 @@ class SSD300(nn.Module):
                 else:
                     torch.nn.init.normal_(layer.weight, std=0.01)
                     torch.nn.init.constant_(layer.bias, 0)
-                    
         else:
             for layer in layers:
                 for param in layer.parameters():
