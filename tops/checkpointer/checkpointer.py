@@ -80,7 +80,6 @@ def save_checkpoint(
     if len(previous_checkpoint_paths) > max_keep:
         previous_checkpoint_paths[0].unlink()
 
-
 def has_checkpoint(checkpoint_dir: Optional[os.PathLike] = None) -> bool:
     if checkpoint_dir is None:
         assert _checkpoint_dir is not None
@@ -106,7 +105,7 @@ def save_registered_models(other_state: dict = None, **kwargs):
     if other_state:
         assert all(key not in state_dict for key in other_state)
         state_dict.update(other_state)
-    save_checkpoint(state_dict, **kwargs)
+    save_checkpoint(state_dict, **kwargs) 
     logger._write_metadata()
 
 def load_registered_models(**kwargs):
