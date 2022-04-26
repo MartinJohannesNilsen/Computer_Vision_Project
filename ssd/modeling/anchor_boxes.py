@@ -43,8 +43,8 @@ class AnchorBoxes(object):
             w_max = sqrt(min_sizes[fidx][1]*min_sizes[fidx+1][1]) / image_shape[1]
             bbox_sizes.append((w_max, h_max))
             for r in aspect_ratios[fidx]:
-                h = h_min*sqrt(r)
-                w = w_min/sqrt(r)
+                # h = h_min*sqrt(r)
+                # w = w_min/sqrt(r)
                 bbox_sizes.append((w_min/sqrt(r), h_min*sqrt(r)))
                 bbox_sizes.append((w_min*sqrt(r), h_min/sqrt(r)))
             scale_y = image_shape[0] / strides[fidx][0]
