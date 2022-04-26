@@ -70,7 +70,7 @@ def train(config_path: Path, evaluate_only: bool):
     logger.logger.DEFAULT_SCALAR_LEVEL = logger.logger.DEBUG
     cfg = utils.load_config(config_path)
     print_config(cfg)
-    early_stopping = EarlyStopping(patience=5)
+    early_stopping = EarlyStopping(patience=10)
     tops.init(cfg.output_dir)
     tops.set_AMP(cfg.train.amp)
     tops.set_seed(cfg.train.seed)
@@ -114,11 +114,15 @@ def train(config_path: Path, evaluate_only: bool):
 
         eval_stats = evaluation_fn()
         eval_stats = {f"metrics/{key}": val for key, val in eval_stats.items()}
-        map_score = eval_stats['metrics/mAP']
+        try:
+            map_score = eval_stats['metrics/mAP']
+        except KeyError:
+            map_score = 0
+            
         is_best_score = early_stopping(map_score)
         if is_best_score:
-            print("Saves best model")
             checkpointer.save_registered_models(train_state, is_best=True)
+            
         
         
         logger.add_dict(eval_stats, level=logger.logger.INFO)
