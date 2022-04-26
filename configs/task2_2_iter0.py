@@ -1,6 +1,5 @@
 # Inherit configs from the default ssd300
 from glob import glob
-import os
 import torchvision
 import torch
 from ssd.data import TDT4265Dataset
