@@ -7,15 +7,17 @@ from math import sqrt
 # This is used for endcoding/decoding the regressed coordinates from the SSD bounding box head to actual locations.
 # It's a trick to improve gradients from bounding box regression. Take a look at this post about more info:
 # https://leimao.github.io/blog/Bounding-Box-Encoding-Decoding/
+
+
 class AnchorBoxes(object):
-    def __init__(self, 
-            image_shape: tuple, 
-            feature_sizes: List[tuple], 
-            min_sizes: List[int],
-            strides: List[tuple],
-            aspect_ratios: List[int],
-            scale_center_variance: float,
-            scale_size_variance: float):
+    def __init__(self,
+                 image_shape: tuple,
+                 feature_sizes: List[tuple],
+                 min_sizes: List[int],
+                 strides: List[tuple],
+                 aspect_ratios: List[int],
+                 scale_center_variance: float,
+                 scale_size_variance: float):
         """Generate SSD anchors Boxes.
             It returns the center, height and width of the anchors. The values are relative to the image size
             Args:
@@ -41,10 +43,10 @@ class AnchorBoxes(object):
             w_max = sqrt(min_sizes[fidx][1]*min_sizes[fidx+1][1]) / image_shape[1]
             bbox_sizes.append((w_max, h_max))
             for r in aspect_ratios[fidx]:
-                h = h_min*sqrt(r)
-                w = w_min/sqrt(r)
-                bbox_sizes.append((h_min*sqrt(r), w_min/sqrt(r)))
-                bbox_sizes.append((h_min/sqrt(r), w_min*sqrt(r)))
+                # h = h_min*sqrt(r)
+                # w = w_min/sqrt(r)
+                bbox_sizes.append((w_min/sqrt(r), h_min*sqrt(r)))
+                bbox_sizes.append((w_min*sqrt(r), h_min/sqrt(r)))
             scale_y = image_shape[0] / strides[fidx][0]
             scale_x = image_shape[1] / strides[fidx][1]
             for w, h in bbox_sizes:
