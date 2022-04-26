@@ -114,7 +114,9 @@ class RetinaNet(nn.Module):
             p = 0.99
             for layers in self.classification_heads:
                 for layer in layers[:-1]:
+                    torch.nn.init.normal_(layer.weight, std=0.01)
                     torch.nn.init.constant_(layer.bias, 0)
+                torch.nn.init.normal_(layers[-1].weight, std=0.01)
                 torch.nn.init.constant_(layers[-1].bias, -math.log((1-p) / p))
         else:
             layers = [*self.regression_heads, *self.classification_heads]

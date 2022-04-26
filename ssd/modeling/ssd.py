@@ -38,11 +38,10 @@ class SSD300(nn.Module):
         p = 0.99
         if self.use_improved_weight_init:
             for idx, layer in enumerate(layers):
+                torch.nn.init.normal_(layer.weight, std=0.01)
                 if idx == len(layers) - 1:
-                    torch.nn.init.normal_(layer.weight, std=0.01)
                     torch.nn.init.constant_(layer.bias, -math.log((1-p) / p))
                 else:
-                    torch.nn.init.normal_(layer.weight, std=0.01)
                     torch.nn.init.constant_(layer.bias, 0)
         else:
             for layer in layers:
