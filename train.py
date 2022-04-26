@@ -115,8 +115,10 @@ def train(config_path: Path, evaluate_only: bool):
         eval_stats = evaluation_fn()
         eval_stats = {f"metrics/{key}": val for key, val in eval_stats.items()}
         map_score = eval_stats['metrics/mAP']
-        print(f"{map_score=}")
-        early_stopping(map_score)
+        is_best_score = early_stopping(map_score)
+        if is_best_score:
+            print("Saves best model")
+            checkpointer.save_registered_models(train_state, is_best=True)
         
         
         logger.add_dict(eval_stats, level=logger.logger.INFO)
@@ -124,7 +126,7 @@ def train(config_path: Path, evaluate_only: bool):
         checkpointer.save_registered_models(train_state)
         logger.step_epoch()
         if early_stopping.early_stop:
-            checkpointer.save_registered_models(train_state, is_best=True)
+            print(f"Early stop at: {epoch}")
             break
     logger.add_scalar("stats/total_time", total_time)
 

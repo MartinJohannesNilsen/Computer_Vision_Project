@@ -20,6 +20,15 @@ class EarlyStopping:
         self.val_loss_min = np.Inf
         self.delta = delta
     def __call__(self, mAP):
+        """
+        Method to be used for every epoch
+            Parameters:
+            mAP: mAP@0.5:0.95 score for each epoch
+            
+            Returns:
+            boolean: True if epoch is best score
+        """
+    
         score = mAP
 
         if self.best_score is None:
@@ -33,4 +42,6 @@ class EarlyStopping:
             print(f"New best score: {score}")
             self.best_score = score
             self.counter = 0
+            return True
+            
 
