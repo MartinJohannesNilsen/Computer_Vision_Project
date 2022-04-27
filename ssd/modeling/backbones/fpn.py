@@ -27,40 +27,38 @@ class FPNModel(nn.Module):
         self.layer5 = nn.Sequential(
             torch.nn.Conv2d(
                 in_channels=512,
-                out_channels=256,
+                out_channels=512,
                 kernel_size=3,
                 stride=1,
                 padding=1,
             ),
-            torch.nn.BatchNorm2d(256),
             torch.nn.ReLU(),
-            torch.nn.Dropout(0.1),
             torch.nn.Conv2d(
-                in_channels=256,
-                out_channels=256,
+                in_channels=512,
+                out_channels=1024,
                 kernel_size=3,
                 stride=2,
                 padding=1,
             ),
+            torch.nn.ReLU(),    
         ).to("cuda")
         self.layer6 = nn.Sequential(
             torch.nn.Conv2d(
-                in_channels=256,
-                out_channels=256,
+                in_channels=1024,
+                out_channels=1024,
                 kernel_size=3,
                 stride=1,
                 padding=1,
             ),
-            torch.nn.BatchNorm2d(256),
             torch.nn.ReLU(),
-            torch.nn.Dropout(0.1),
             torch.nn.Conv2d(
-                in_channels=256,
-                out_channels=256,
+                in_channels=1024,
+                out_channels=2048,
                 kernel_size=3,
                 stride=2,
                 padding=1,
             ),
+            torch.nn.ReLU(),    
         ).to("cuda")
         
         features = torch.nn.ModuleList(self.model.children())[:-2]
