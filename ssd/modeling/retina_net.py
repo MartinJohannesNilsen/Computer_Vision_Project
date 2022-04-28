@@ -111,7 +111,7 @@ class RetinaNet(nn.Module):
 
     def _init_weights(self):
         if self.use_improved_weight_init:
-            p = 0.99
+            p = 0.01
             for layers in self.classification_heads:
                 for layer in layers[:-1]:
                     torch.nn.init.normal_(layer.weight, std=0.01)
