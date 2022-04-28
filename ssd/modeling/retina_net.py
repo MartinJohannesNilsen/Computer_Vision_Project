@@ -114,10 +114,16 @@ class RetinaNet(nn.Module):
             p = 0.01
             for layers in self.classification_heads:
                 for layer in layers[:-1]:
-                    torch.nn.init.normal_(layer.weight, std=0.01)
-                    torch.nn.init.constant_(layer.bias, 0)
-                torch.nn.init.normal_(layers[-1].weight, std=0.01)
-                torch.nn.init.constant_(layers[-1].bias, -math.log((1-p) / p))
+                    if isinstance(layer, nn.Conv2d):
+                        torch.nn.init.constant_(layer.bias.data, 0)
+                        torch.nn.init.normal_(layer.weight.data, mean=0.0, std=0.01)
+                anchors_per_class = int(layers[-1].bias.data.shape[0] / self.num_classes)
+                torch.nn.init.constant_(layers[-1].bias.data[:anchors_per_class], -math.log((1-p)/p))
+            for layers in self.regression_heads:
+                for layer in layers:
+                    if isinstance(layer, nn.Conv2d):
+                        torch.nn.init.constant_(layer.bias.data, 0)
+                        torch.nn.init.normal_(layer.weight.data, mean=0.0, std=0.01)
         else:
             layers = [*self.regression_heads, *self.classification_heads]
             for layer in layers:
@@ -125,6 +131,7 @@ class RetinaNet(nn.Module):
                     if isinstance(l, nn.Conv2d):
                         for param in l.parameters():
                             if param.dim() > 1: nn.init.xavier_uniform_(param)
+
 
     def regress_boxes(self, features):
         locations = []

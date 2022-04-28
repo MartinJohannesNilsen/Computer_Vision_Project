@@ -8,14 +8,9 @@ from ssd.data.transforms import (
     ToTensor, RandomHorizontalFlip, RandomSampleCrop, Normalize, Resize,
     GroundTruthBoxesToAnchors)
 from .utils import get_dataset_dir
-from .task2_3_retina import train_cpu_transform, val_cpu_transform,model, gpu_transform,data_train, data_val, train, anchors, optimizer, schedulers, model, loss_objective, label_map, feature_extractor, loss_objective
+from .task2_3_retina import train_cpu_transform, val_cpu_transform,model, gpu_transform,data_train, data_val, train, anchors, optimizer, schedulers, model, loss_objective, label_map, feature_extractor, loss_objective, model
 
 
-model = L(RetinaNet) (
-    feature_extractor="${feature_extractor}",
-    anchors="${anchors}",
-    loss_objective= "${loss_objective}",
-    num_classes=8 + 1, # Add 1 for background
-    use_improved_weight_init = True
-)
+model.use_improved_weight_init = True
+
 
