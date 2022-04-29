@@ -28,6 +28,7 @@ anchors = L(AnchorBoxes)(
     scale_size_variance=0.2
 )
 
+train["epochs"] = 150
 # Keep as is
 backbone = L(backbones.BasicModel)(
     output_channels=[128, 256, 128, 128, 64, 64],
