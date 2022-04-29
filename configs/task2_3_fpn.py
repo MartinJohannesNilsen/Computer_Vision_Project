@@ -8,7 +8,7 @@ from ssd.data.transforms import (
     ToTensor, RandomHorizontalFlip, RandomSampleCrop, Normalize, Resize,
     GroundTruthBoxesToAnchors)
 from .utils import get_dataset_dir
-from .task2_1 import train_cpu_transform, val_cpu_transform,model, gpu_transform,data_train, data_val, train, anchors, optimizer, schedulers, model, loss_objective, label_map
+from .task2_1 import train_cpu_transform, val_cpu_transform,model, gpu_transform,data_train, data_val, train, anchors, optimizer, schedulers, model, loss_objective, label_map, backbone
 
 
 feature_extractor = L(backbones.FPNModel)(

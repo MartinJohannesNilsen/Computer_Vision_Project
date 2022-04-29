@@ -8,7 +8,7 @@ from ssd.data.transforms import (
     ToTensor, RandomHorizontalFlip, RandomSampleCrop, Normalize, Resize,
     GroundTruthBoxesToAnchors)
 from .utils import get_dataset_dir
-from .task2_3_fpn import train_cpu_transform, val_cpu_transform,model, gpu_transform,data_train, data_val, train, anchors, optimizer, schedulers, model, loss_objective, label_map, feature_extractor
+from .task2_3_fpn import train_cpu_transform, val_cpu_transform,model, gpu_transform,data_train, data_val, train, anchors, optimizer, schedulers, model, loss_objective, label_map, feature_extractor, backbone
 
 loss_objective = L(FocalLoss)(anchors = "${model.anchors}", alpha = torch.as_tensor([0.01,*[1.0 for i in range (model.num_classes-1)]]).to("cuda"), gamma = 2.0,num_classes = model.num_classes)
 

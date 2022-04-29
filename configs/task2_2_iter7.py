@@ -68,12 +68,18 @@ elif ITERATION == 4:
 elif ITERATION == 5:
     transforms = [
         L(ToTensor)(),
-        L(RandomAdjustSharpness)(sharpness_factor=0, p=0.25),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
-        L(RandomAdjustSharpness)(sharpness_factor=1.5, p=0.25),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
+
     ]
 elif ITERATION == 6:
     transforms = [
         L(RandomSampleCrop)(),
+        L(ToTensor)(),
+        L(RandomHorizontalFlip)(),
+        L(RandomAdjustSharpness)(sharpness_factor=0, p=0.25),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
+        L(RandomAdjustSharpness)(sharpness_factor=1.5, p=0.25),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
+    ]
+elif ITERATION == 7:
+    transforms = [
         L(ToTensor)(),
         L(RandomHorizontalFlip)(),
         L(RandomAdjustSharpness)(sharpness_factor=0, p=0.25),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
