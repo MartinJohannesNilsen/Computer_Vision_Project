@@ -100,7 +100,7 @@ python -m performance_assessment.save_comparison_images configs/tdt4265.py
 This script comes with several extra flags. If you for example want to check the output on the 500 first train images, you can run:
 
 ```
-python -m performance_assessment.save_comparison_images configs/tdt4265.py --train -n 1000
+python -m performance_assessment.save_comparison_images configs/task2_4.py --train -n 500
 ```
 
 ### Test on video:

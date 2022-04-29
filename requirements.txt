@@ -17,4 +17,3 @@ numpy
 cloudpickle
 tensorboard
 matplotlib
-natsort
