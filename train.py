@@ -15,13 +15,17 @@ from tops import logger, checkpointer
 from torch.optim.lr_scheduler import ChainedScheduler
 from omegaconf import OmegaConf
 torch.backends.cudnn.benchmark = True
+from EarlyStopping import EarlyStopping
+import numpy as np
 
 def train_epoch(
         model, scaler: torch.cuda.amp.GradScaler,
         optim, dataloader_train, scheduler,
         gpu_transform: torch.nn.Module,
-        log_interval: int):
+        log_interval: int
+    ):
     grad_scale = scaler.get_scale()
+    
     for batch in tqdm.tqdm(dataloader_train, f"Epoch {logger.epoch()}"):
         batch = tops.to_cuda(batch)
         batch["labels"] = batch["labels"].long()
@@ -66,7 +70,7 @@ def train(config_path: Path, evaluate_only: bool):
     logger.logger.DEFAULT_SCALAR_LEVEL = logger.logger.DEBUG
     cfg = utils.load_config(config_path)
     print_config(cfg)
-
+    early_stopping = EarlyStopping(patience=10)
     tops.init(cfg.output_dir)
     tops.set_AMP(cfg.train.amp)
     tops.set_seed(cfg.train.seed)
@@ -110,10 +114,24 @@ def train(config_path: Path, evaluate_only: bool):
 
         eval_stats = evaluation_fn()
         eval_stats = {f"metrics/{key}": val for key, val in eval_stats.items()}
+        try:
+            map_score = eval_stats['metrics/mAP']
+        except KeyError:
+            map_score = 0
+            
+        is_best_score = early_stopping(map_score)
+        if is_best_score:
+            checkpointer.save_registered_models(train_state, is_best=True)
+            
+        
+        
         logger.add_dict(eval_stats, level=logger.logger.INFO)
         train_state = dict(total_time=total_time)
         checkpointer.save_registered_models(train_state)
         logger.step_epoch()
+        if early_stopping.early_stop:
+            print(f"Early stop at: {epoch}")
+            break
     logger.add_scalar("stats/total_time", total_time)
 
 

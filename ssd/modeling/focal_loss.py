@@ -77,8 +77,8 @@ class FocalLoss(nn.Module):
         weight_balanced = torch.pow(1.0 - confs_soft_max, self.gamma)
         
         focal = -self.alpha.unsqueeze(0).unsqueeze(-1) * weight_balanced
-        classification_loss = focal * gt_labels_one_hot * log
-        classification_loss = classification_loss.sum()
+        focal_loss = focal * gt_labels_one_hot * log
+        focal_loss = focal_loss.sum()
         
         
         pos_mask = (gt_labels > 0).unsqueeze(1).repeat(1, 4, 1)
@@ -88,10 +88,10 @@ class FocalLoss(nn.Module):
         regression_loss = F.smooth_l1_loss(bbox_delta, gt_locations, reduction="sum")
         num_pos = gt_locations.shape[0]/4
         
-        total_loss = regression_loss/num_pos + classification_loss/num_pos
+        total_loss = regression_loss/num_pos + focal_loss/num_pos
         to_log = dict(
             regression_loss=regression_loss/num_pos,
-            classification_loss=classification_loss/num_pos,
+            classification_loss=focal_loss/num_pos,
             total_loss=total_loss
         )
         return total_loss, to_log
