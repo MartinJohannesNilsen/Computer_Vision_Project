@@ -12,7 +12,7 @@ from .task2_4_1 import anchors
 
 # Train for a long time
 train["epochs"] = 150
-EXTEND = False
+EXTEND = True
 
 # Need to send in new anchors
 backbone.output_feature_sizes = "${anchors.feature_sizes}"

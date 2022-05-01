@@ -12,12 +12,13 @@ from .task2_1 import model, gpu_transform, data_train, data_val, train, optimize
 anchors = L(AnchorBoxes)(
     feature_sizes=[[32, 256], [16, 128], [8, 64], [4, 32], [2, 16], [1, 8]],
     strides=[[4, 4], [8, 8], [16, 16], [32, 32], [64, 64], [128, 128]],
-    # min_sizes=[[16, 16], [32, 32], [48, 48], [64, 64], [86, 86], [128, 128], [128, 400]], # Original
     min_sizes=[[12, 12], [26, 26], [48, 48], [64, 64], [86, 86], [128, 128], [128, 400]],
-    aspect_ratios=[[2, 3], [2, 3], [2, 3], [2, 3], [2], [2]],  # Original
+    # aspect_ratios=[[2, 3], [2, 3], [2, 3], [2, 3], [2], [2]],  # Original
+    aspect_ratios=[[2, 3], [2, 3], [2], [2, 3], [2], [2]],
     image_shape="${train.imshape}",
     scale_center_variance=0.1,
     scale_size_variance=0.2
 )
 
 train["epochs"] = 150
+
