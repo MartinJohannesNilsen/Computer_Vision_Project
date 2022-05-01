@@ -104,6 +104,15 @@ def train(config_path: Path, evaluate_only: bool):
     scaler = torch.cuda.amp.GradScaler(enabled=tops.AMP())
     dummy_input = tops.to_cuda(torch.randn(1, cfg.train.image_channels, *cfg.train.imshape))
     tops.print_module_summary(model, (dummy_input,))
+    
+    # Print torchinfo
+    """
+    from torchinfo import summary
+    summary(model)
+    import sys
+    sys.exit(1)
+    """
+    
     start_epoch = logger.epoch()
     for epoch in range(start_epoch, cfg.train.epochs):
         start_epoch_time = time.time()
