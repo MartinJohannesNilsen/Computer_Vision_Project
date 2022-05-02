@@ -22,7 +22,8 @@ Iterations:
  3. RandomRotation - rotate
  4. RandomColorJitter/RandomGrayScale - change colors
  5. RandomAdjustSharpness - sharpen/blur
- 6. Combination of RandomSampleCrop, RandomHorizontalFlip and RandomAdjustSharpness
+ 6. Combination of RandomSampleCrop, RandomHorizontalFlip and RandomAdjustSharpness (Best before anchor box bug fix)
+ 7. Combination of RandomHorizontalFlip and RandomAdjustSharpness (Best after bug fix)
 """
 
 # Find iteration based on file name

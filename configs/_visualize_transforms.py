@@ -3,7 +3,7 @@ from glob import glob
 import os
 import torchvision
 import torch
-from ssd.data import TDT4265Dataset
+from ssd.data import TDT4265DatasetWithImagePaths as TDT4265Dataset
 from tops.config import LazyCall as L
 from ssd.data.transforms import (
     Resize, ToTensor, Normalize, GroundTruthBoxesToAnchors,

@@ -14,7 +14,10 @@ def AMP():
 
 
 def _to_cuda(element):
-    return element.to(get_device(), non_blocking=True)
+    if type(element) is torch.tensor:
+        return element.to(get_device(), non_blocking=True)
+    else: 
+        return element
 
 
 def to_cuda(elements):
