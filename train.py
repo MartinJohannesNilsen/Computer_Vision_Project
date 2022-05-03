@@ -66,7 +66,8 @@ def print_config(cfg):
 @click.command()
 @click.argument("config_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("--evaluate-only", default=False, is_flag=True, help="Only run evaluation, no training.")
-def train(config_path: Path, evaluate_only: bool):
+@click.option("--torchinfo-only", default=False, is_flag=True, help="Only print torchinfo.")
+def train(config_path: Path, evaluate_only: bool, torchinfo_only: bool):
     logger.logger.DEFAULT_SCALAR_LEVEL = logger.logger.DEBUG
     cfg = utils.load_config(config_path)
     print_config(cfg)
@@ -105,13 +106,12 @@ def train(config_path: Path, evaluate_only: bool):
     dummy_input = tops.to_cuda(torch.randn(1, cfg.train.image_channels, *cfg.train.imshape))
     tops.print_module_summary(model, (dummy_input,))
     
-    # Print torchinfo
-    """
-    from torchinfo import summary
-    summary(model)
-    import sys
-    sys.exit(1)
-    """
+    if torchinfo_only:
+        # Print torchinfo
+        from torchinfo import summary
+        summary(model)
+        import sys
+        sys.exit(1)
     
     start_epoch = logger.epoch()
     for epoch in range(start_epoch, cfg.train.epochs):

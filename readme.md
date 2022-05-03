@@ -60,18 +60,23 @@ The dataset can be downloaded using the script
 python scripts/update_tdt4265_dataset.py
 ```
 
-----
-# Below comes the handout readme
-----
+## Dataset train
+For training the data, you can simply define the configurations in a config-file, and run
+
+```
+python train.py configs/task2_1.py
+```
+
+## Torchinfo
+The project utilizes torchinfo for printing out the model and parameters. Simply run 
+```
+python train.py configs/task2_1.py --torchinfo-only
+```
+To print out this for the given model.
+
 
 ## Dataset exploration 
-We have provided some boilerplate code for getting you started with dataset exploration. It can be found in `dataset_exploration/analyze_stuff.py`. We recommend making multiple copies of this file for different parts of your data exploration.
-
-To run the script, do the following command from the SSD folder:
-
-```
-python -m dataset_exploration.analyze_stuff
-```
+We have provided some notebooks for the parts covering dataset exploration. See the folder called `dataset_exploration`.
 
 ## Dataset visualization
 
@@ -124,6 +129,14 @@ At the end, it will print out the number of images per second.
 ```
 python benchmark_data_loading.py configs/tdt4265.py
 ```
+
+## Runtime analysis
+The file `runtime_analysis.py` will automatically will test the inference speed and FPS for the given model.
+
+```
+python runtime_analysis.py configs/task2_1.py
+```
+
 
 ## Uploading results to the leaderboard:
 Run the file:
