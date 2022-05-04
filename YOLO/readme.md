@@ -12,7 +12,7 @@ One of tese are passed in with the `weights` flag during training.
 &nbsp;
 
 ## Data structure and preprocessing
-- Clone *ultralytics/YOLOv5*
+- Clone [*ultralytics/YOLOv5*](https://github.com/ultralytics/yolov5)
 - Create folder `datasets` on same level
     - In this folder we would like a folder for the name of the dataset
     - Inside the folder of each dataset, we would like two folders `images` and `labels`, which both have a folder for train and val data
@@ -63,7 +63,7 @@ names: [
             └── val
                 └── trip007_glos_Video00003_0.txt
 ```
-And each label has the format:
+Label format:
 ```
 1 0.5135 0.8156 0.0431 0.3688
 7 0.5233 0.5652 0.0029 0.0676
@@ -94,11 +94,13 @@ torchrun train.py --rect --img 1024 --batch 32 --epochs 100 --data dataset.yaml 
 - **optimizer**: Select optimizer {SGD, Adam, AdamW}
 - **workers**: define amount of workers, default 8 but recommended 2 in project
 - **cache**: cache images for faster training. Did not have enough RAM available on cluster for this, but will make training faster.
+- **resume**: Resume training where the former run left off, for the given amount of epochs when first ran.
+
 
 Entire list is defined above the main method in `train.py`.
 
 <details>
-<summary>ValueError: Error initializing torch.distributed</summary>
+<summary>Fix for "ValueError: Error initializing torch.distributed"</summary>
 Fix this by running either of the following options:
 
 ```torchrun train.py``` 
