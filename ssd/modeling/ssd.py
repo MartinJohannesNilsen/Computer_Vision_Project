@@ -34,7 +34,6 @@ class SSD300(nn.Module):
         self._init_weights()
     
     def _init_weights(self):  
-        layers = [*self.regression_heads, *self.classification_heads] 
         if self.use_improved_weight_init:
             p = 0.01
             for layer in self.classification_heads:
@@ -42,7 +41,11 @@ class SSD300(nn.Module):
                 anchors_per_class = int(layer.bias.data.shape[0] / self.num_classes)
                 torch.nn.init.constant_(layer.bias.data[:anchors_per_class], -math.log((1-p)/p))
                 torch.nn.init.normal_(layer.weight.data, mean=0.0, std=0.01)
+            for layer in self.regression_heads:
+                torch.nn.init.constant_(layer.bias, 0)
+                torch.nn.init.normal_(layer.weight.data, mean=0.0, std=0.01)
         else:
+            layers = [*self.regression_heads, *self.classification_heads] 
             for layer in layers:
                 for param in layer.parameters():
                     if param.dim() > 1: nn.init.xavier_uniform_(param)

@@ -81,7 +81,6 @@ class TDT4265Dataset(data.Dataset):
         sample = dict(
             image=img, boxes=bbox_ltrb, labels=bbox_labels,
             width=wtot, height=htot, image_id=img_id,
-            img_path=img_path  # For visualization we need the path to the images
         )
         if self.transform:
             sample = self.transform(sample)
@@ -89,3 +88,37 @@ class TDT4265Dataset(data.Dataset):
 
     def get_annotations_as_coco(self):
         return COCO(self.annotate_file)
+
+class TDT4265DatasetWithImagePaths(TDT4265Dataset):
+    def __init__(self, img_folder, annotation_file, transform=None):
+        super().__init__(img_folder, annotation_file, transform)
+
+    def __getitem__(self, idx):
+        img_id = self.img_keys[idx]
+        img_data = self.images[img_id]
+        fn = img_data[0]
+        img_path = os.path.join(self.img_folder, fn)
+        img = Image.open(img_path).convert("RGB")
+        htot, wtot = img_data[1]
+        bbox_ltrb = []
+        bbox_labels = []
+
+        for (l, t, w, h), bbox_label in img_data[2]:
+            r = l + w
+            b = t + h
+            bbox_size = (l / wtot, t / htot, r / wtot, b / htot)
+            bbox_ltrb.append(bbox_size)
+            bbox_labels.append(bbox_label)
+
+        bbox_ltrb = np.array(bbox_ltrb).astype(np.float32)
+        bbox_labels = np.array(bbox_labels)
+        img = np.array(img)
+
+        sample = dict(
+            image=img, boxes=bbox_ltrb, labels=bbox_labels,
+            width=wtot, height=htot, image_id=img_id,
+            img_path=img_path  # For visualization we need the path to the images
+        )
+        if self.transform:
+            sample = self.transform(sample)
+        return sample

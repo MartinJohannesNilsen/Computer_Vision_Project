@@ -82,11 +82,24 @@ def create_filepath(save_folder, image_id):
     return os.path.join(save_folder, filename)
 
 
-def create_comparison_image(batch, model, img_transform, label_map, score_threshold):
+def create_comparison_image(batch, model, img_transform, label_map, score_threshold, model_2=None, model_3=None):
     image = convert_image_to_hwc_byte(batch["image"])
     image_with_annotations = visualize_annotations_on_image(image, batch, label_map)
     image_with_model_predictions = visualize_model_predictions_on_image(
         image, img_transform, batch, model, label_map, score_threshold)
+    if model_2:
+        image_with_model_predictions_2 = visualize_model_predictions_on_image(
+            image, img_transform, batch, model_2, label_map, score_threshold)
+        image_with_model_predictions_3 = visualize_model_predictions_on_image(
+            image, img_transform, batch, model_3, label_map, score_threshold)
+        concatinated_image = np.concatenate([
+            image,
+            image_with_annotations,
+            image_with_model_predictions,
+            image_with_model_predictions_2,
+            image_with_model_predictions_3,
+        ], axis=0)
+        return concatinated_image
 
     concatinated_image = np.concatenate([
         image,
@@ -106,9 +119,13 @@ def create_and_save_comparison_images(dataloader, model, cfg, save_folder, score
     dataloader = iter(dataloader)
 
     img_transform = instantiate(cfg.data_val.gpu_transform)
+    cfg2 = get_config("configs/task2_3_focal_loss.py")
+    cfg3 = get_config("configs/task2_1.py")
+    model2 = get_trained_model(cfg2)
+    model3 = get_trained_model(cfg3)
     for i in tqdm(range(num_images_to_save)):
         batch = next(dataloader)
-        comparison_image = create_comparison_image(batch, model, img_transform, cfg.label_map, score_threshold)
+        comparison_image = create_comparison_image(batch, model, img_transform, cfg.label_map, score_threshold, model2, model3)
         filepath = create_filepath(save_folder, i)
         cv2.imwrite(filepath, comparison_image[:, :, ::-1])
 
@@ -127,7 +144,7 @@ def get_save_folder_name(cfg, dataset_to_visualize):
 @click.option("-n", "--num_images", default=500, type=int, help="The max number of images to save")
 @click.option("-c", "--conf_threshold", default=0.7, type=float, help="The confidence threshold for predictions")
 def main(config_path, train, num_images, conf_threshold):
-    cfg = get_config(config_path)
+    cfg = get_config("configs/task2_3_retina.py")
     model = get_trained_model(cfg)
 
     if train:

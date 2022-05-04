@@ -8,11 +8,11 @@ from ssd.data.transforms import (GroundTruthBoxesToAnchors)
 from .utils import get_dataset_dir
 from .task2_3_weight_init import train, optimizer, schedulers, loss_objective, model, backbone, data_train, data_val, label_map, anchors
 from .task2_2_iter7 import train_cpu_transform, val_cpu_transform, gpu_transform, transforms
-from .task2_4_1 import anchors
+from .task2_4_5 import anchors
 
 # Train for a long time
 train["epochs"] = 150
-EXTEND = False
+EXTEND = True
 
 # Need to send in new anchors
 backbone.output_feature_sizes = "${anchors.feature_sizes}"
