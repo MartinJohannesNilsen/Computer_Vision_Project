@@ -215,15 +215,13 @@ def create_cam_image(
 def main(config_path: Path, n_images: int, renormalized, threshold):
     cfg = get_config(str(config_path, "utf-8"))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     model = get_trained_model(cfg)
     model.eval()
-    dataset_to_visualize = "train"
+    dataset_to_visualize = "val"
     dataloader = get_dataloader(cfg, dataset_to_visualize)
     num_images_to_save = min(len(dataloader), n_images)
     img_transform = instantiate(cfg.data_val.gpu_transform)
     dataloader = iter(dataloader)
-    score_threshold = 0.75
     count = 0
     save_folder = "cam_results"
     if os.path.exists(save_folder):
@@ -238,7 +236,6 @@ def main(config_path: Path, n_images: int, renormalized, threshold):
         reshape_transform=reshape_transform,
     )
     cam.uses_gradients = False
-
     for i in tqdm(range(num_images_to_save)):
         batch = next(dataloader)
         cam_image = create_cam_image(
@@ -248,7 +245,7 @@ def main(config_path: Path, n_images: int, renormalized, threshold):
             img_transform,
             cfg.label_map,
             renormalized,
-            score_threshold,
+            threshold,
         )
         cv2.imwrite(f"{save_folder}/{count}.jpg", cam_image)
         count += 1
