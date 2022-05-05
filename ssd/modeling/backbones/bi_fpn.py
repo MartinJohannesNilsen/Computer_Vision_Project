@@ -5,7 +5,7 @@ from torchvision.models.feature_extraction import get_graph_node_names, create_f
 from torchsummary import summary
 from typing import Tuple, List
 from collections import OrderedDict
-
+from .bi_fpn_util import BiFPN
 
 class BiFPNModel(nn.Module):
     def __init__(
@@ -26,16 +26,16 @@ class BiFPNModel(nn.Module):
         
         self.layer5 = nn.Sequential(
             torch.nn.Conv2d(
-                in_channels=512,
-                out_channels=512,
+                in_channels=self.input_channels[-3],
+                out_channels=self.input_channels[-3],
                 kernel_size=3,
                 stride=1,
                 padding=1,
             ),
             torch.nn.ReLU(),
             torch.nn.Conv2d(
-                in_channels=512,
-                out_channels=1024,
+                in_channels=self.input_channels[-3],
+                out_channels=self.input_channels[-2],
                 kernel_size=3,
                 stride=2,
                 padding=1,
@@ -44,16 +44,16 @@ class BiFPNModel(nn.Module):
         ).to("cuda")
         self.layer6 = nn.Sequential(
             torch.nn.Conv2d(
-                in_channels=1024,
-                out_channels=1024,
+                in_channels=self.input_channels[-2],
+                out_channels=self.input_channels[-2],
                 kernel_size=3,
                 stride=1,
                 padding=1,
             ),
             torch.nn.ReLU(),
             torch.nn.Conv2d(
-                in_channels=1024,
-                out_channels=2048,
+                in_channels=self.input_channels[-2],
+                out_channels=self.input_channels[-1],
                 kernel_size=3,
                 stride=2,
                 padding=1,
@@ -68,33 +68,44 @@ class BiFPNModel(nn.Module):
         model_features.add_module("9", self.layer6)
         
         self.model = model_features
-        print(self.model)
-        exit()
         self.body = create_feature_extractor(
             self.model, return_nodes={f'{k}': str(v)
                              for v, k in enumerate([i for i in range(4,10)])})
         
         self.fpn_channels = self.out_channels[0]
-        
-        # self.fpn = torchvision.ops.FeaturePyramidNetwork(
-        #     self.input_channels, out_channels=self.fpn_channels)
+        self.bi_fpn = BiFPN(256)
 
-    def fpn(self, x, out_features):
-    #     # print(f"{[a.shape for a in out_features]=}") same as x - [torch.Size([1, 64, 32, 256]), torch.Size([1, 128, 16, 128]), torch.Size([1, 256, 8, 64]), torch.Size([1, 512, 4, 32]), torch.Size([1, 1024, 2, 16]), torch.Size([1, 2048, 1, 8])]
-    #     # print(f"{self.fpn_channels=}") - 256
-    #     # print(f"{self.input_channels=}") - [64, 128, 256, 512, 1024, 2048]
-    #     # print(f"{self.out_channels=}") - [256, 256, 256, 256, 256, 256]
-        exit()
-        
-        
     def forward(self, x):
         x = self.body(x)
         out_features = list(x.values())
         self.res_test(out_features)
+
+        out_features[0] = torch.nn.Conv2d(
+                    in_channels=self.input_channels[0],
+                    out_channels=256,
+                    kernel_size=1,
+                    stride=1,
+                    padding=0,
+                ).to("cuda")(out_features[0])
+        out_features[1] = torch.nn.Conv2d(
+                    in_channels=self.input_channels[1],
+                    out_channels=256,
+                    kernel_size=1,
+                    stride=1,
+                    padding=0,
+                ).to("cuda")(out_features[1])
+        out_features[3] = torch.nn.Conv2d(
+                    in_channels=self.input_channels[3],
+                    out_channels=256,
+                    kernel_size=1,
+                    stride=1,
+                    padding=0,
+                ).to("cuda")(out_features[3])
         
-        x = self.fpn(x, out_features)
-        out_features = list(x.values())
-        # print(f"{[a.shape for a in out_features]=}") - FPN - [torch.Size([1, 256, 32, 256]), torch.Size([1, 256, 16, 128]), torch.Size([1, 256, 8, 64]), torch.Size([1, 256, 4, 32]), torch.Size([1, 256, 2, 16]), torch.Size([1, 256, 1, 8])]
+        out_features = self.bi_fpn.forward(out_features)
+        out_features = self.bi_fpn.forward(out_features)
+        out_features = self.bi_fpn.forward(out_features)
+        
         self.fpn_test(out_features)
         
         return tuple(out_features)
