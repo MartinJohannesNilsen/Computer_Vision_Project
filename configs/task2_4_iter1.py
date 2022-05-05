@@ -16,6 +16,7 @@ Iterations:
  0. No changes to anchor boxes
  1. Decrease of smallest min_sizes for optimizing detection of smaller objects
  2. Increase of largest min_sizes for optimizing detection of larger objects
+ 3. Both decrease the smallest and increase the largest for testin purposes
 """
 
 # Find iteration based on file name
@@ -53,6 +54,17 @@ elif ITERATION == 2:
         strides=[[4, 4], [8, 8], [16, 16], [32, 32], [64, 64], [128, 128]],
         # min_sizes=[[16, 16], [32, 32], [48, 48], [64, 64], [86, 86], [128, 128], [128, 400]], # Original
         min_sizes=[[12, 12], [26, 26], [48, 48], [64, 64], [92, 92], [148, 148], [148, 432]],
+        aspect_ratios=[[2, 3], [2, 3], [2, 3], [2, 3], [2], [2]],
+        image_shape="${train.imshape}",
+        scale_center_variance=0.1,
+        scale_size_variance=0.2
+    )
+elif ITERATION == 3:
+    anchors = L(AnchorBoxes)(
+        feature_sizes=[[32, 256], [16, 128], [8, 64], [4, 32], [2, 16], [1, 8]],
+        strides=[[4, 4], [8, 8], [16, 16], [32, 32], [64, 64], [128, 128]],
+        # min_sizes=[[16, 16], [32, 32], [48, 48], [64, 64], [86, 86], [128, 128], [128, 400]], # Original
+        min_sizes=[[8, 8], [24, 24], [48, 48], [64, 64], [94, 94], [172, 172], [172, 520]],
         aspect_ratios=[[2, 3], [2, 3], [2, 3], [2, 3], [2], [2]],
         image_shape="${train.imshape}",
         scale_center_variance=0.1,
