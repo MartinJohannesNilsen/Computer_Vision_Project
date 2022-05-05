@@ -26,7 +26,6 @@ from .task2_3_deeper import (
     schedulers,
     loss_objective,
     label_map,
-    feature_extractor,
     loss_objective,
     backbone,
 )
