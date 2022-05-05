@@ -12,7 +12,7 @@ from .task2_1 import train_cpu_transform, val_cpu_transform, model, gpu_transfor
 
 
 backbone = L(backbones.FPNModel)(
-    input_channels=[64, 128, 256, 512, 1024, 2048],
+    input_channels=[64, 128, 256, 512, 256, 256],
     output_channels=[256, 256, 256, 256, 256, 256],
     image_channels="${train.image_channels}",
     output_feature_sizes="${anchors.feature_sizes}"
