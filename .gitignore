@@ -28,3 +28,4 @@ outputs/
 outputs_old/
 data/VOCdevkit
 notebooks/data
+YOLO/datasets
