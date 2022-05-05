@@ -73,7 +73,9 @@ class BiFPNModel(nn.Module):
                              for v, k in enumerate([i for i in range(4,10)])})
         
         self.fpn_channels = self.out_channels[0]
-        self.bi_fpn = BiFPN(256)
+        self.bi_fpn = []
+        for i in range(3):
+            self.bi_fpn.append(BiFPN(self.fpn_channels))
 
     def forward(self, x):
         x = self.body(x)
@@ -82,29 +84,27 @@ class BiFPNModel(nn.Module):
 
         out_features[0] = torch.nn.Conv2d(
                     in_channels=self.input_channels[0],
-                    out_channels=256,
+                    out_channels=self.fpn_channels,
                     kernel_size=1,
                     stride=1,
                     padding=0,
                 ).to("cuda")(out_features[0])
         out_features[1] = torch.nn.Conv2d(
                     in_channels=self.input_channels[1],
-                    out_channels=256,
+                    out_channels=self.fpn_channels,
                     kernel_size=1,
                     stride=1,
                     padding=0,
                 ).to("cuda")(out_features[1])
         out_features[3] = torch.nn.Conv2d(
                     in_channels=self.input_channels[3],
-                    out_channels=256,
+                    out_channels=self.fpn_channels,
                     kernel_size=1,
                     stride=1,
                     padding=0,
                 ).to("cuda")(out_features[3])
-        
-        out_features = self.bi_fpn.forward(out_features)
-        out_features = self.bi_fpn.forward(out_features)
-        out_features = self.bi_fpn.forward(out_features)
+        for bifpn in self.bi_fpn:
+            out_features = bifpn.forward(out_features)
         
         self.fpn_test(out_features)
         

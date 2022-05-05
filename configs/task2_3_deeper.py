@@ -19,3 +19,5 @@ model = L(RetinaNet)(
     num_classes=8 + 1,  # Add 1 for background
     use_improved_weight_init=False
 )
+
+anchors.aspect_ratios=[2, 3], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3],
