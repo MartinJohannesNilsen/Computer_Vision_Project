@@ -118,7 +118,7 @@ Fix this by running either of the following options:
 ## Detection/inference with trained model
 
 ```
-python detect.py --weights runs/train/exp/weights/best.pt --img 1024 --source ../datasets/tdt4265/images/val --data data/dataset.yaml --conf 0.1 --iou-thres 0.2 --line-thickness 1
+python detect.py --weights runs/train/exp/weights/best.pt --img 1024 --source ../datasets/tdt4265/images/val --data data/dataset.yaml --conf 0.5 --iou-thres 0.2 --line-thickness 1
 ```
 
 - **weights**: specify path of weights as .pt-file
