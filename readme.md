@@ -12,8 +12,12 @@
     </h2> 
 </center>
 
-#### by Martin Johannes Nilsen, Max Torre Schau, Zaim Imran
+## Authors 
+#### 🥷🏽 Zaim Imran 
 
+#### 😈 Martin Johannes Nilsen
+
+#### 🤡 Max Torre Schau
 
 ## Introduction
 Write something here ... What have been done etc.
