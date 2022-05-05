@@ -7,7 +7,9 @@ YOLOv5 comes in 5 sizes:
 - `YOLOv5m`: Medium
 - `YOLOv5l`: Large
 - `YOLOv5x`: XLarge
-One of tese are passed in with the `weights` flag during training.
+One of these are passed in with the `weights` flag during training.
+
+![Models](https://github.com/ultralytics/yolov5/releases/download/v1.0/model_comparison.png)
 
 &nbsp;
 
@@ -16,8 +18,8 @@ One of tese are passed in with the `weights` flag during training.
 - Create folder `datasets` on same level
     - In this folder we would like a folder for the name of the dataset
     - Inside the folder of each dataset, we would like two folders `images` and `labels`, which both have a folder for train and val data
-- Labels need to be converted into YOLO format. See provided notebook
-- Inside `Yolov5/data`, an `.yaml`-file need to be defined with the following information
+- Labels need to be converted into YOLO format. See provided notebook for this conversion.
+- Inside `Yolov5/data`, a `.yaml`-file need to be defined with the following information
 ```Py
 """
 Dataset.yaml
@@ -72,6 +74,8 @@ Label format:
 Which is defined as:
 
 `class x_center y_center width height`
+
+With normalized values for flexibility regarding change of height and width of image.
 
 More information is available at the following [guide](https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data), in addition to the notebook `coco2yolov5.ipynb`.
 
@@ -128,9 +132,3 @@ python detect.py --weights runs/train/exp/weights/best.pt --img 1024 --source ..
 
 Entire list is defined above the main method in `detect.py`.
 
-
----
-
-Small 2min per epoch
-
-Xl 7min per epoch
