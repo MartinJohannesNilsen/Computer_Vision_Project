@@ -102,7 +102,7 @@ def draw_boxes(boxes, labels, classes, image):
         color = COLORS[labels[i]]
         image = np.ascontiguousarray(image, dtype=np.uint8)
         cv2.rectangle(
-            image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), color, 2
+            image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), color, 1
         )
         cv2.putText(
             image,
@@ -143,7 +143,6 @@ def renormalize_cam_in_bounding_boxes(boxes, image_float_np, grayscale_cam):
         img = renormalized_cam * 0
         img[y1:y2, x1:x2] = scale_cam_image(grayscale_cam[y1:y2, x1:x2].copy())
         images.append(img)
-    print(len(images))
     renormalized_cam = np.max(np.float32(images), axis=0)
     renormalized_cam = scale_cam_image(renormalized_cam)
     eigencam_image_renormalized = show_cam_on_image(
@@ -154,7 +153,7 @@ def renormalize_cam_in_bounding_boxes(boxes, image_float_np, grayscale_cam):
 
 def reshape_transform(x):
     # x is a tuple of 6 features (which makes sense :) )
-    target_size = x[3].size()[
+    target_size = x[4].size()[
         -2:
     ]  # Select the feature map of highest resolution (index 0)
     print(f"Target size: {target_size}")
@@ -167,11 +166,11 @@ def reshape_transform(x):
             )
         )
     activations = torch.cat(activations, axis=1)
-    return torch.autograd.Variable(activations, requires_grad=True)
+    return activations
 
 
 def create_cam_image(
-    batch, model, img_transform, device, renormalized, score_threshold=0.5
+    cam, batch, model, img_transform, device, renormalized, score_threshold=0.5
 ):
     image = convert_image_to_hwc_byte(batch["image"])
     image_float_np = np.float32(image) / 255
@@ -192,15 +191,7 @@ def create_cam_image(
         transformed_image, model, device, score_threshold
     )
 
-    target_layers = [model.feature_extractor]
     targets = [ScoreTarget(labels=labels, bounding_boxes=boxes)]
-    cam = EigenCAM(
-        model,
-        target_layers,
-        use_cuda=torch.cuda.is_available(),
-        reshape_transform=reshape_transform,
-    )
-    cam.uses_gradients = False
     grayscale_cam = cam(input_tensor, targets=targets)
     grayscale_cam = grayscale_cam[0, :]
     if renormalized:
@@ -208,7 +199,7 @@ def create_cam_image(
             boxes, image_float_np, grayscale_cam
         )
     else:
-        cam_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb=True)
+        cam_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb=False)
     image_width_predicted_boxes = draw_boxes(boxes, labels, classes, cam_image)
 
     return image_width_predicted_boxes
@@ -220,26 +211,44 @@ def create_cam_image(
 )
 @click.option("-n", "--n-images", default=100, type=int)
 @click.option("-r", "--renormalized", is_flag=True, default=False)
-def main(config_path: Path, n_images: int, renormalized):
+@click.option("-c", "--threshold", default=0.5, type=float)
+def main(config_path: Path, n_images: int, renormalized, threshold):
     cfg = get_config(str(config_path, "utf-8"))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = get_trained_model(cfg)
+    model.eval()
     dataset_to_visualize = "train"
     dataloader = get_dataloader(cfg, dataset_to_visualize)
     num_images_to_save = min(len(dataloader), n_images)
     img_transform = instantiate(cfg.data_val.gpu_transform)
     dataloader = iter(dataloader)
-    score_threshold = 0.7
+    score_threshold = 0.75
     count = 0
     save_folder = "cam_results"
     if os.path.exists(save_folder):
         shutil.rmtree(save_folder)
     os.makedirs(save_folder)
+
+    target_layers = [model.feature_extractor]
+    cam = EigenCAM(
+        model,
+        target_layers,
+        use_cuda=torch.cuda.is_available(),
+        reshape_transform=reshape_transform,
+    )
+    cam.uses_gradients = False
+
     for i in tqdm(range(num_images_to_save)):
         batch = next(dataloader)
         cam_image = create_cam_image(
-            batch, model, img_transform, cfg.label_map, renormalized, score_threshold
+            cam,
+            batch,
+            model,
+            img_transform,
+            cfg.label_map,
+            renormalized,
+            score_threshold,
         )
         cv2.imwrite(f"{save_folder}/{count}.jpg", cam_image)
         count += 1
