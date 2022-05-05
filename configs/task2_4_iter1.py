@@ -15,7 +15,7 @@ import re
 Iterations:
  0. No changes to anchor boxes
  1. Decrease of smallest min_sizes for optimizing detection of smaller objects
- 2. Aspect ratios
+ 2. Increase of largest min_sizes for optimizing detection of larger objects
 """
 
 # Find iteration based on file name
