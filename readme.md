@@ -1,23 +1,21 @@
-<center> 
-    <h1>
+<center>
+    <h2>
         Computer Vision Project
-    </h1> 
+    </h2>
 </center>
 
 ---
 
-<center> 
-    <h2>
+<center>
+    <h3>
         Object detection on LIDAR images from an autonomous car
-    </h2> 
+    </h3>
 </center>
 
-## Authors 
-#### 🥷🏽 Zaim Imran 
+---
 
-#### 😈 Martin Johannes Nilsen
 
-#### 🤡 Max Torre Schau
+#### by Zaim Imran, Martin Johannes Nilsen and Max Torre Schau
 
 ## Introduction
 Write something here ... What have been done etc.
