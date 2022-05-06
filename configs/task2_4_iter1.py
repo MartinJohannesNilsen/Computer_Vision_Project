@@ -27,7 +27,7 @@ Iterations:
  0. No changes to anchor boxes
  1. Decrease of smallest min_sizes for optimizing detection of smaller objects
  2. Increase of largest min_sizes for optimizing detection of larger objects
- 3. Both decrease the smallest and increase the largest for testin purposes
+ 3. Both decrease the smallest and increase the largest for testing purposes
 """
 
 # Find iteration based on file name

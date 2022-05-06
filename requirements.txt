@@ -18,3 +18,4 @@ cloudpickle
 tensorboard
 matplotlib
 torchinfo
+grad-cam
