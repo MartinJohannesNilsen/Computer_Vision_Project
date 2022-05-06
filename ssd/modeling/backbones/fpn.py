@@ -1,7 +1,10 @@
 import torch.nn as nn
 import torchvision
 import torch
-from torchvision.models.feature_extraction import get_graph_node_names, create_feature_extractor
+from torchvision.models.feature_extraction import (
+    get_graph_node_names,
+    create_feature_extractor,
+)
 from torchsummary import summary
 from typing import Tuple, List
 from collections import OrderedDict
@@ -9,12 +12,11 @@ from collections import OrderedDict
 
 class FPNModel(nn.Module):
     def __init__(
-            self,
-            output_channels: List[int],
-            image_channels: int,
-            input_channels: List[int],
-            output_feature_sizes: List[Tuple[int]],
-
+        self,
+        output_channels: List[int],
+        image_channels: int,
+        input_channels: List[int],
+        output_feature_sizes: List[Tuple[int]],
     ):
         super().__init__()
         self.out_channels = output_channels
@@ -39,7 +41,7 @@ class FPNModel(nn.Module):
                 stride=2,
                 padding=1,
             ),
-            torch.nn.ReLU(),    
+            torch.nn.ReLU(),
         ).to("cuda" if torch.cuda.is_available() else "cpu")
         self.layer6 = nn.Sequential(
             torch.nn.Conv2d(
@@ -57,7 +59,7 @@ class FPNModel(nn.Module):
                 stride=2,
                 padding=1,
             ),
-            torch.nn.ReLU(),    
+            torch.nn.ReLU(),
         ).to("cuda" if torch.cuda.is_available() else "cpu")
 
         features = torch.nn.ModuleList(self.model.children())[:-2]
@@ -68,13 +70,17 @@ class FPNModel(nn.Module):
 
         self.model = model_features
         self.body = create_feature_extractor(
-            self.model, return_nodes={f'{k}': str(v)
-                                      for v, k in enumerate([i for i in range(4, 10)])})
+            self.model,
+            return_nodes={
+                f"{k}": str(v) for v, k in enumerate([i for i in range(4, 10)])
+            },
+        )
 
         self.fpn_channels = self.out_channels[0]
 
         self.fpn = torchvision.ops.FeaturePyramidNetwork(
-            self.input_channels, out_channels=self.fpn_channels)
+            self.input_channels, out_channels=self.fpn_channels
+        )
 
     def forward(self, x):
         x = self.body(x)

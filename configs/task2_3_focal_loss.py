@@ -33,7 +33,7 @@ from .task2_3_fpn import (
 loss_objective = L(FocalLoss)(
     anchors="${model.anchors}",
     alpha=torch.as_tensor([0.01, *[1.0 for i in range(model.num_classes - 1)]]).to(
-        "cuda"
+        "cuda" if torch.cuda.is_available() else "cpu"
     ),
     gamma=2.0,
     num_classes=model.num_classes,

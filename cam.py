@@ -140,10 +140,14 @@ def renormalize_cam_in_bounding_boxes(boxes, image_float_np, grayscale_cam):
     renormalized_cam = np.zeros(grayscale_cam.shape, dtype=np.float32)
     images = []
     for x1, y1, x2, y2 in boxes:
-        if x1 < 0: x1=0
-        if x2 < 0: x2=0
-        if y1 < 0: y1=0
-        if y2 < 0: y2=0
+        if x1 < 0:
+            x1 = 0
+        if x2 < 0:
+            x2 = 0
+        if y1 < 0:
+            y1 = 0
+        if y2 < 0:
+            y2 = 0
         img = renormalized_cam * 0
         img[y1:y2, x1:x2] = scale_cam_image(grayscale_cam[y1:y2, x1:x2].copy())
         images.append(img)
@@ -216,8 +220,10 @@ def create_cam_image(
 @click.option("-r", "--renormalized", is_flag=True, default=False)
 @click.option("-c", "--threshold", default=0.5, type=float)
 def main(config_path: Path, n_images: int, renormalized, threshold):
-    cfg = get_config(config_path)
-    # cfg = get_config(str(config_path, "utf-8"))
+    try:
+        cfg = get_config(config_path)
+    except TypeError:
+        cfg = get_config(str(config_path, "utf-8"))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = get_trained_model(cfg)
     model.eval()
