@@ -18,7 +18,7 @@
 #### by Zaim Imran, Martin Johannes Nilsen and Max Torre Schau
 
 ## Introduction
-Write something here ... What have been done etc.
+This is the final project in the subject TDT 4265 - Computer Vision and Deep Learning. 
 
 
 ## Tutorials from handout code
