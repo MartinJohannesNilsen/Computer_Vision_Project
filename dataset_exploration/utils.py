@@ -32,6 +32,8 @@ def create_histogram(
     show=False,
     savefig_location=None,
     figsize=None,
+    rotation=10,
+    fontsize=10,
 ):
     names = list(dictionary.keys())
     values = list(dictionary.values())
@@ -43,6 +45,7 @@ def create_histogram(
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.tight_layout()
+
     if xtick_fontsize:
         plt.xticks(fontsize=xtick_fontsize)
     if xtick_rotation:
@@ -55,6 +58,7 @@ def create_histogram(
         plt.savefig(savefig_location)
     if show:
         plt.show()
+
 
 def create_matrix():
     pass

@@ -1,27 +1,40 @@
-# Inherit configs from the default ssd300
+from pprint import pprint
+import re
+import sys
 from glob import glob
-import os
 import torchvision
 import torch
-from ssd.data import TDT4265DatasetWithImagePaths as TDT4265Dataset
+from ssd.data import TDT4265Dataset
 from tops.config import LazyCall as L
 from ssd.data.transforms import (
-    Resize, ToTensor, Normalize, GroundTruthBoxesToAnchors,
-    RandomSampleCrop, RandomHorizontalFlip, RandomRotation, RandomColorJitter, RandomGrayscale, RandomAdjustSharpness
+    Resize,
+    ToTensor,
+    Normalize,
+    GroundTruthBoxesToAnchors,
+    RandomSampleCrop,
+    RandomHorizontalFlip,
+    RandomRotation,
+    RandomColorJitter,
+    RandomGrayscale,
+    RandomAdjustSharpness,
 )
-from .ssd300 import train, anchors, optimizer, schedulers, backbone, model, data_train, data_val, loss_objective
+from .task2_1 import (
+    model,
+    data_train,
+    data_val,
+    train,
+    optimizer,
+    schedulers,
+    backbone,
+    anchors,
+    loss_objective,
+    label_map,
+    gpu_transform,
+    val_cpu_transform,
+)
 from .utils import get_dataset_dir
 
-"""
-Possible transforms, which all of them have been added in the ssd.data.transforms file.
-The methods taken from Pytorch own library have been implemented with wrappers.
-- RandomSampleCrop
-- RandomHorizontalFlip
-- RandomColorJitter
-- RandomGrayscale
-- RandomAdjustSharpness
-"""
-augmentation_transforms = [
+transforms = [
     # L(RandomSampleCrop)(),
     L(ToTensor)(),  # Convert to tensor
     # L(RandomHorizontalFlip)(p=1),
@@ -31,37 +44,6 @@ augmentation_transforms = [
     # L(RandomAdjustSharpness)(sharpness_factor=0, p=1),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
     # L(RandomAdjustSharpness)(sharpness_factor=1.5, p=1),  # sf = 0, 1, 2 (default 1 for no change, 0 blur and 2 sharpen)
 ]
-
-# Keep all the other settings!
-train.imshape = (128, 1024)
-train.image_channels = 3
-model.num_classes = 8 + 1  # Add 1 for background class
-transforms = [
-    L(Resize)(imshape="${train.imshape}"),  # Reassure all images are correct size
-    L(GroundTruthBoxesToAnchors)(anchors="${anchors}", iou_threshold=0.5),  # Draw boxes
-]
-for elem in reversed(augmentation_transforms):
-    transforms.insert(0, elem)  # Insert all augmentation transforms after ToTensor(), before resize and gt boxes, in correct order
+transforms.append(L(Resize)(imshape="${train.imshape}"))
+transforms.append(L(GroundTruthBoxesToAnchors)(anchors="${anchors}", iou_threshold=0.5))
 train_cpu_transform = L(torchvision.transforms.Compose)(transforms=transforms)
-val_cpu_transform = L(torchvision.transforms.Compose)(transforms=[
-    L(ToTensor)(),
-    L(Resize)(imshape="${train.imshape}"),
-])
-gpu_transform = L(torchvision.transforms.Compose)(transforms=[
-    L(Normalize)(mean=[0.4765, 0.4774, 0.2259], std=[0.2951, 0.2864, 0.2878])
-])
-
-
-data_train.dataset = L(TDT4265Dataset)(
-    img_folder=get_dataset_dir("tdt4265_2022"),
-    transform="${train_cpu_transform}",
-    annotation_file=get_dataset_dir("tdt4265_2022/train_annotations.json"))
-
-data_val.dataset = L(TDT4265Dataset)(
-    img_folder=get_dataset_dir("tdt4265_2022"),
-    transform="${val_cpu_transform}",
-    annotation_file=get_dataset_dir("tdt4265_2022/train_annotations.json"))
-data_val.gpu_transform = gpu_transform
-data_train.gpu_transform = gpu_transform
-
-label_map = {idx: cls_name for idx, cls_name in enumerate(TDT4265Dataset.class_names)}
