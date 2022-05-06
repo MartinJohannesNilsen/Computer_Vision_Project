@@ -48,10 +48,10 @@ class BiFPN(nn.Module):
             nn.Conv2d(num_channels, num_channels, kernel_size=1, stride=1, padding=0, groups=num_channels), 
             nn.BatchNorm2d(num_features=num_channels),
             nn.ReLU()
-        ).to("cuda")
+        ).to("cuda" if torch.cuda.is_available() else "cpu")
         return features 
 
     @staticmethod
     def Resize(scale_factor=2, mode='bilinear'):
-        upsample = nn.Upsample(scale_factor=scale_factor, mode=mode).to("cuda")
+        upsample = nn.Upsample(scale_factor=scale_factor, mode=mode, align_corners=True).to("cuda" if torch.cuda.is_available() else "cpu")
         return upsample

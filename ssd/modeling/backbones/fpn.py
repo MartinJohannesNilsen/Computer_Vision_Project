@@ -40,7 +40,7 @@ class FPNModel(nn.Module):
                 padding=1,
             ),
             torch.nn.ReLU(),    
-        ).to("cuda")
+        ).to("cuda" if torch.cuda.is_available() else "cpu")
         self.layer6 = nn.Sequential(
             torch.nn.Conv2d(
                 in_channels=self.input_channels[-2],
@@ -58,7 +58,7 @@ class FPNModel(nn.Module):
                 padding=1,
             ),
             torch.nn.ReLU(),    
-        ).to("cuda")
+        ).to("cuda" if torch.cuda.is_available() else "cpu")
 
         features = torch.nn.ModuleList(self.model.children())[:-2]
         model_features = torch.nn.Sequential(*features)

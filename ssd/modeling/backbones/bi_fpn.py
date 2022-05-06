@@ -41,7 +41,7 @@ class BiFPNModel(nn.Module):
                 padding=1,
             ),
             torch.nn.ReLU(),    
-        ).to("cuda")
+        ).to("cuda" if torch.cuda.is_available() else "cpu")
         self.layer6 = nn.Sequential(
             torch.nn.Conv2d(
                 in_channels=self.input_channels[-2],
@@ -59,7 +59,7 @@ class BiFPNModel(nn.Module):
                 padding=1,
             ),
             torch.nn.ReLU(),    
-        ).to("cuda")
+        ).to("cuda" if torch.cuda.is_available() else "cpu")
         
         features = torch.nn.ModuleList(self.model.children())[:-2]
         model_features = torch.nn.Sequential(*features) 
@@ -89,21 +89,21 @@ class BiFPNModel(nn.Module):
                     kernel_size=1,
                     stride=1,
                     padding=0,
-                ).to("cuda")(out_features[0])
+                ).to("cuda" if torch.cuda.is_available() else "cpu")(out_features[0])
         out_features[1] = torch.nn.Conv2d(
                     in_channels=self.input_channels[1],
                     out_channels=self.fpn_channels,
                     kernel_size=1,
                     stride=1,
                     padding=0,
-                ).to("cuda")(out_features[1])
+                ).to("cuda" if torch.cuda.is_available() else "cpu")(out_features[1])
         out_features[3] = torch.nn.Conv2d(
                     in_channels=self.input_channels[3],
                     out_channels=self.fpn_channels,
                     kernel_size=1,
                     stride=1,
                     padding=0,
-                ).to("cuda")(out_features[3])
+                ).to("cuda" if torch.cuda.is_available() else "cpu")(out_features[3])
         for bifpn in self.bi_fpn:
             out_features = bifpn.forward(out_features)
         
