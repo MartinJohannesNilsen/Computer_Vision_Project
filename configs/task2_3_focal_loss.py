@@ -27,7 +27,6 @@ from .task2_3_fpn import (
     model,
     loss_objective,
     label_map,
-    feature_extractor,
     backbone,
 )
 

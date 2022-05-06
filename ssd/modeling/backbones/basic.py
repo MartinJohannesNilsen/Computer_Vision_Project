@@ -1,3 +1,4 @@
+import sys
 import torch
 from typing import Tuple, List
 
@@ -23,7 +24,6 @@ class BasicModel(torch.nn.Module):
         super().__init__()
         self.out_channels = output_channels
         self.output_feature_shape = output_feature_sizes
-
         self.b1 = torch.nn.Sequential(
             torch.nn.Conv2d(
                 in_channels=image_channels,
@@ -150,7 +150,7 @@ class BasicModel(torch.nn.Module):
                 in_channels=128,
                 out_channels=output_channels[5],
                 kernel_size=2,  # Changed from 3 (originally) to 2
-                stride=2, # Changed from 1 to 2
+                stride=2,  # Changed from 1 to 2
                 padding=0,
             ),
             torch.nn.ReLU(),
@@ -174,10 +174,9 @@ class BasicModel(torch.nn.Module):
         out_features = []
         output = x
         for idx, layer in enumerate(self.layers):
-            
+
             out = layer(output)
-            
-            
+
             out_features.append(out)
             output = out
 
