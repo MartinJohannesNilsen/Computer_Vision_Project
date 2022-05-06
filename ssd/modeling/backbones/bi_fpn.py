@@ -25,12 +25,8 @@ class BiFPNModel(nn.Module):
         self.input_channels = input_channels
         self.output_feature_shape = output_feature_sizes
         self.image_channels = image_channels
-        self.model = (
-            torchvision.models.resnet34(pretrained=True).to(
-                "cuda" if torch.cuda.is_available() else "cpu"
-            ),
-        )
-
+        self.model = torchvision.models.resnet34(pretrained=True).to("cuda" if torch.cuda.is_available() else "cpu")
+        
         self.layer5 = nn.Sequential(
             torch.nn.Conv2d(
                 in_channels=self.input_channels[-3],
