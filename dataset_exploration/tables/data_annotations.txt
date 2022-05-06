@@ -1,9 +1,0 @@
-Object      Occurences  In %
---------  ------------  ------
-car               9563  52.29%
-person            4910  26.85%
-rider             1588  8.68%
-bicycle           1043  5.7%
-scooter            615  3.36%
-bus                445  2.43%
-truck              123  0.67%

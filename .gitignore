@@ -29,3 +29,7 @@ outputs_old/
 data/VOCdevkit
 notebooks/data
 YOLO/datasets
+cam_results/
+performance_assessment/*
+dataset_exploration/histogram/
+dataset_exploration/tables/
