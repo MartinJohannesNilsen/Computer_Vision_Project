@@ -74,7 +74,8 @@ class BiFPNModel(nn.Module):
         
         self.fpn_channels = self.out_channels[0]
         self.bi_fpn = []
-        for i in range(3):
+        self.bi_fpn_layers = 3
+        for i in range(self.bi_fpn_layers):
             self.bi_fpn.append(BiFPN(self.fpn_channels))
 
     def forward(self, x):
